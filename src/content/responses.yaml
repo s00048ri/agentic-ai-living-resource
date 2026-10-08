@@ -1,5 +1,6 @@
 # Governance responses taxonomy — Phase 2 paper, Section 4.2
-# 7 top-level responses (names verbatim); "Layered technical safeguards" has 10 sub-items (names verbatim).
+# 17 responses (names verbatim). The 10 items the paper lists under "Layered technical safeguards"
+# are top-level responses in this prototype.
 # Source / licence / adaptation notice: see challenges.yaml header.
 #
 # addresses[].basis:
@@ -110,13 +111,13 @@
     - { challenge: unintended-actions, basis: explicit }
     - { challenge: multi-agent-systemic-risks, basis: explicit }
     - { challenge: data-governance-privacy-attribution, basis: explicit }
-  tm: null   # parent group; T&M links sit on the sub-items
+  tm: null   # former group heading; T&M links sit on the individual safeguards
 
-# ---- Sub-items of "Layered technical safeguards" ----
+# ---- Formerly listed under "Layered technical safeguards" ----
 
 - id: sandboxing
   name: Sandboxing and environment isolation
-  parent: layered-technical-safeguards
+  parent: null
   source_ref: "Section 4.2"
   summary: >-
     Running agents in contained environments, especially during testing and early
@@ -128,7 +129,7 @@
 
 - id: access-permission-management
   name: Access and permission management
-  parent: layered-technical-safeguards
+  parent: null
   source_ref: "Section 4.2"
   summary: >-
     Least-privilege and zero-trust principles for agents, explicit human approval for
@@ -141,7 +142,7 @@
 
 - id: agent-authentication
   name: Agent authentication
-  parent: layered-technical-safeguards
+  parent: null
   source_ref: "Section 4.2"
   summary: >-
     Requiring agents to authenticate before connecting to systems, to reduce the risk of
@@ -154,7 +155,7 @@
 
 - id: rule-based-safety-layers
   name: Rule-based safety layers
-  parent: layered-technical-safeguards
+  parent: null
   source_ref: "Section 4.2"
   summary: >-
     Agents propose actions while an external, non-AI rule system validates execution
@@ -167,7 +168,7 @@
 
 - id: hard-coded-boundaries
   name: Hard-coded boundaries
-  parent: layered-technical-safeguards
+  parent: null
   source_ref: "Section 4.2"
   summary: >-
     Monitoring agent activity and setting limits on compute, memory or execution time to
@@ -180,7 +181,7 @@
 
 - id: grounding-trusted-data
   name: Grounding in trusted data sources
-  parent: layered-technical-safeguards
+  parent: null
   source_ref: "Section 4.2"
   summary: >-
     Grounding outputs in vetted internal reference materials to constrain sources, enforce
@@ -194,7 +195,7 @@
 
 - id: programmatic-tool-calling
   name: Programmatic tool calling
-  parent: layered-technical-safeguards
+  parent: null
   source_ref: "Section 4.2"
   summary: >-
     Invoking tools through code execution rather than step-by-step natural-language
@@ -208,7 +209,7 @@
 
 - id: agent-registries
   name: Agent registries
-  parent: layered-technical-safeguards
+  parent: null
   source_ref: "Section 4.2"
   summary: >-
     Maintaining registries of approved agents to address shadow agents, while still
@@ -221,7 +222,7 @@
 
 - id: observability-mechanisms
   name: Observability mechanisms
-  parent: layered-technical-safeguards
+  parent: null
   source_ref: "Section 4.2"
   summary: >-
     Dashboards tracking agent actions, decisions and data changes, and specialised agents
@@ -235,7 +236,7 @@
 
 - id: hallucination-mitigation
   name: Hallucination mitigation techniques
-  parent: layered-technical-safeguards
+  parent: null
   source_ref: "Section 4.2"
   summary: >-
     Retrieval-augmented generation, document grounding and validation workflows to reduce

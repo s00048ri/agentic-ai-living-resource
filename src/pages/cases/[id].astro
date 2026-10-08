@@ -82,11 +82,6 @@ const isFull = d.detail_level === 'full';
           {d.haip_linked && (
             <li class="illustrative">Illustrative: linked to a HAIP report <Badge kind="later" /></li>
           )}
-          <li class="illustrative">
-            {d.in_oecd_ai_subset
-              ? 'Illustrative: included in the OECD.AI subset'
-              : 'Illustrative: not included in the OECD.AI subset'}
-          </li>
         </ul>
       </section>
 
@@ -129,6 +124,7 @@ const isFull = d.detail_level === 'full';
           <h2 id="challenges-h">Challenges encountered</h2>
           <span class="badge badge-common">Common field</span>
         </div>
+        <p class="meta">Optional: the organisation chose to link these challenges and governance responses to this use case.</p>
         <ul class="tags">
           {d.challenges.map((ref) => (
             <li><a class="tag" href={url(`/challenges/${ref.id}/`)}>{tax.challenge(ref.id).data.name}</a></li>

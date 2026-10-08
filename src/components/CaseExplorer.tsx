@@ -30,13 +30,14 @@ export interface CaseSummary {
   responses: string[];
   last_verified: string;
   last_verified_label: string;
-  in_oecd_ai_subset: boolean;
 }
 
 interface Props {
   cases: CaseSummary[];
   challenges: Term[];
   responses: Term[];
+  /** Heading level of the card titles, to fit the page outline. */
+  headingLevel?: 2 | 3;
 }
 
 type FilterKey =
@@ -58,11 +59,8 @@ const SORTS: { id: Sort; label: string }[] = [
   { id: 'title', label: 'Title (A–Z)' },
 ];
 
-function readView(): 'full' | 'oecd' {
-  return document.documentElement.dataset.view === 'oecd' ? 'oecd' : 'full';
-}
-
-export default function CaseExplorer({ cases, challenges, responses }: Props) {
+export default function CaseExplorer({ cases, challenges, responses, headingLevel = 2 }: Props) {
+  const CardHeading = headingLevel === 3 ? 'h3' : 'h2';
   const filters: { key: FilterKey; label: string; vocab: readonly Term[] }[] = [
     { key: 'sector', label: 'Sector', vocab: SECTORS },
     { key: 'application_area', label: 'Application area', vocab: APPLICATION_AREAS },
@@ -78,7 +76,6 @@ export default function CaseExplorer({ cases, challenges, responses }: Props) {
 
   const [values, setValues] = useState<Partial<Record<FilterKey, string>>>({});
   const [sort, setSort] = useState<Sort>('verified');
-  const [view, setView] = useState<'full' | 'oecd'>('full');
 
   // Read the initial state from the URL once hydrated.
   useEffect(() => {
@@ -90,10 +87,6 @@ export default function CaseExplorer({ cases, challenges, responses }: Props) {
     }
     setValues(initial);
     if (params.get('sort') === 'title') setSort('title');
-    setView(readView());
-    const onView = () => setView(readView());
-    window.addEventListener('viewchange', onView);
-    return () => window.removeEventListener('viewchange', onView);
   }, []);
 
   function sync(next: Partial<Record<FilterKey, string>>, nextSort: Sort) {
@@ -139,8 +132,8 @@ export default function CaseExplorer({ cases, challenges, responses }: Props) {
     );
   }, [cases, values, sort]);
 
-  const visible = view === 'oecd' ? matches.filter((c) => c.in_oecd_ai_subset) : matches;
-  const total = view === 'oecd' ? cases.filter((c) => c.in_oecd_ai_subset).length : cases.length;
+  const visible = matches;
+  const total = cases.length;
   const active = Object.values(values).some(Boolean);
   const challengeName = (id: string) => challenges.find((t) => t.id === id)?.label ?? id;
 
@@ -174,6 +167,23 @@ export default function CaseExplorer({ cases, challenges, responses }: Props) {
             ))}
           </select>
         </div>
+        <div class="field">
+          <label for="f-tm">
+            Tools &amp; metrics used{' '}
+            <span class="badge badge-later" title="Feature status: could be added later.">
+              Later
+            </span>
+          </label>
+          <select id="f-tm" aria-describedby="f-tm-note">
+            <option value="">All</option>
+            <option value="" disabled>
+              [To be curated]
+            </option>
+          </select>
+          <span id="f-tm-note" class="filter-note">
+            Options would come from the OECD Catalogue of Tools &amp; Metrics.
+          </span>
+        </div>
         <div class="field field-reset">
           <button type="button" class="btn btn-secondary" onClick={reset} disabled={!active}>
             Clear filters
@@ -182,15 +192,15 @@ export default function CaseExplorer({ cases, challenges, responses }: Props) {
       </form>
 
       <p class="count" role="status">
-        Showing {visible.length} of {total} use cases{view === 'oecd' ? ' (OECD.AI subset)' : ''}
+        Showing {visible.length} of {total} use cases
       </p>
 
       <div class="grid">
         {visible.map((c) => (
-          <article class="card" key={c.id} data-oecd-subset={String(c.in_oecd_ai_subset)}>
-            <h2 class="card-title">
+          <article class="card" key={c.id}>
+            <CardHeading class="card-title">
               <a href={url(`/cases/${c.id}/`)}>{c.title}</a>
-            </h2>
+            </CardHeading>
             <p class="meta">
               {c.organisation}{' '}
               <span class="badge badge-fictional" title="This organisation and use case are fictional.">

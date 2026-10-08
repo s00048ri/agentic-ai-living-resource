@@ -32,7 +32,7 @@ export const COMMON_FIELD_NOTE = 'Common field — used to compare use cases.';
 
 export const COMMON_FIELDS: readonly CommonField[] = [
   { key: 'org_type', label: 'Organisation type', definition: 'The kind of organisation describing the use case.', vocab: ORG_TYPES },
-  { key: 'ecosystem_role', label: 'Role in the AI ecosystem', definition: 'Whether the organisation develops the system, deploys it, or both.', vocab: ECOSYSTEM_ROLES },
+  { key: 'ecosystem_role', label: 'Role in the AI ecosystem', definition: 'Whether the organisation builds the agentic AI system (developer), uses it (deployer), or both.', vocab: ECOSYSTEM_ROLES },
   { key: 'sector', label: 'Sector', definition: 'The sector in which the organisation operates.', vocab: SECTORS },
   { key: 'application_area', label: 'Application area', definition: 'The type of task the agent is used for.', vocab: APPLICATION_AREAS },
   { key: 'intended_users', label: 'Intended users', definition: 'Who uses the agent: people inside the organisation, outside it, or both.', vocab: INTENDED_USERS },

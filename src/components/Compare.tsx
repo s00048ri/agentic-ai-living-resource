@@ -8,7 +8,7 @@ export interface CompareRow {
 }
 
 interface Props {
-  cases: { id: string; title: string; organisation: string; in_oecd_ai_subset: boolean }[];
+  cases: { id: string; title: string; organisation: string }[];
   rows: CompareRow[];
 }
 
@@ -50,7 +50,7 @@ export default function Compare({ cases, rows }: Props) {
             <select id={`cmp-${slot}`} value={selected[slot] ?? ''} onChange={(e) => choose(slot, (e.currentTarget as HTMLSelectElement).value)}>
               <option value="">{slot < selected.length ? 'Remove' : 'Select…'}</option>
               {cases.map((c) => (
-                <option value={c.id} key={c.id} disabled={selected.includes(c.id) && selected[slot] !== c.id} data-oecd-subset={String(c.in_oecd_ai_subset)}>
+                <option value={c.id} key={c.id} disabled={selected.includes(c.id) && selected[slot] !== c.id}>
                   {c.organisation} — {c.title}
                 </option>
               ))}

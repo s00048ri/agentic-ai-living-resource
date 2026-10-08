@@ -13,7 +13,7 @@ const tax = await getTaxonomy();
 const d = entry.data;
 const Heading = headingLevel;
 ---
-<article class="card" data-oecd-subset={String(d.in_oecd_ai_subset)}>
+<article class="card">
   <Heading><a href={url(`/cases/${entry.id}/`)}>{d.title}</a></Heading>
   <p class="meta">{d.organisation} <Badge kind="fictional" /></p>
   <p>{d.summary}</p>

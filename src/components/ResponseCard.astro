@@ -31,11 +31,11 @@ const Heading = sub ? 'h4' : 'h3';
     </div>
   )}
   <div>
-    <p class="sub-h">Use cases reporting this response</p>
+    <p class="sub-h">Use cases linking this response</p>
     {adopted.length > 0 ? (
       <ul class="plain">
         {adopted.map((c) => (
-          <li data-oecd-subset={String(c.data.in_oecd_ai_subset)}>
+          <li>
             <a href={url(`/cases/${c.id}/`)}>{c.data.organisation}</a> <span class="meta">(fictional)</span>
           </li>
         ))}

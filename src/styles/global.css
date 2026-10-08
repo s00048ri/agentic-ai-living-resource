@@ -100,13 +100,6 @@ p { margin: 0 0 0.9em; }
 .site-nav ul { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 4px 16px; }
 .site-nav a { text-decoration: none; color: var(--text); padding: 4px 0; border-bottom: 2px solid transparent; }
 .site-nav a:hover, .site-nav a[aria-current='page'] { border-bottom-color: var(--accent); }
-.view-toggle { margin-left: auto; display: flex; align-items: center; gap: 8px; font-size: 0.85rem; flex-wrap: wrap; }
-.segmented { display: inline-flex; border: 1px solid var(--border); border-radius: 999px; overflow: hidden; }
-.segmented button {
-  font: inherit; border: 0; background: transparent; color: var(--text); padding: 4px 12px; cursor: pointer;
-}
-.segmented button[aria-pressed='true'] { background: var(--navy); color: #fff; }
-@media (prefers-color-scheme: dark) { .segmented button[aria-pressed='true'] { background: var(--accent); color: #11141f; } }
 
 main { padding: 16px 0 48px; }
 
@@ -172,10 +165,6 @@ a.tag:hover { border-color: var(--accent); }
 .tip:hover .tip-text, .tip:focus-within .tip-text { display: block; }
 .tip.tip-dismissed .tip-text { display: none; }
 
-/* ---- View switching (full repository / OECD.AI subset) ---- */
-html[data-view='oecd'] [data-oecd-subset='false'] { display: none !important; }
-html[data-view='oecd'] [data-view-only='full'] { display: none !important; }
-html:not([data-view='oecd']) [data-view-only='oecd'] { display: none !important; }
 
 /* ---- Forms ---- */
 label { font-weight: 600; }
@@ -192,3 +181,12 @@ th, td { text-align: left; vertical-align: top; padding: 8px 10px; border-bottom
 th { font-weight: 600; }
 
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; scroll-behavior: auto !important; } }
+
+/* ---- Use case explorer (filters) ---- */
+.filters { display: grid; gap: 12px; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; margin: 16px 0; }
+.filters .field { display: flex; flex-direction: column; gap: 4px; }
+.filters label { font-size: 0.85rem; }
+.filters .field-reset { justify-content: flex-end; }
+.filter-note { font-size: 0.75rem; color: var(--muted); }
+.count { font-weight: 600; }
+.card-title { margin: 0; font-size: 1.05rem; }

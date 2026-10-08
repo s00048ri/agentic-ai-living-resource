@@ -18,10 +18,10 @@ export const ORG_TYPES = [
 ] as const satisfies readonly Term[];
 
 export const ECOSYSTEM_ROLES = [
-  { id: 'developer', label: 'Developer' },
-  { id: 'deployer', label: 'Deployer' },
-  { id: 'developer-deployer', label: 'Developer + deployer' },
-  { id: 'regulator', label: 'Regulator' },
+  { id: 'developer', label: 'Developer', description: 'Builds the agentic AI system or its components, for its own use or for others.' },
+  { id: 'deployer', label: 'Deployer', description: 'Uses an agentic AI system, built in-house or by others, in its operations or services.' },
+  { id: 'developer-deployer', label: 'Developer + deployer', description: 'Both builds and uses the agentic AI system.' },
+  { id: 'regulator', label: 'Regulator', description: 'A public authority with a regulatory or supervisory role.' },
 ] as const satisfies readonly Term[];
 
 export const SECTORS = [

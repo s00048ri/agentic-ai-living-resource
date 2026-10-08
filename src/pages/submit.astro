@@ -11,6 +11,8 @@ const field = (key: CommonField['key']) => {
   if (!f) throw new Error(`Unknown field ${key}`);
   return f;
 };
+const tipText = (f: CommonField) =>
+  [f.definition, ...f.vocab.filter((t) => t.description).map((t) => `${t.label}: ${t.description}`)].join(' ');
 const step1 = (['org_type', 'ecosystem_role', 'sector', 'region'] as const).map(field);
 const step2 = (['application_area', 'intended_users', 'client_orientation', 'deployment_stage', 'autonomy_level'] as const).map(field);
 
@@ -29,7 +31,6 @@ const prefill = Object.fromEntries(
       challenges: c.data.challenges.map((r) => r.id),
       responses: c.data.responses.map((r) => r.id),
       haip_linked: c.data.haip_linked,
-      in_oecd_ai_subset: c.data.in_oecd_ai_subset,
     },
   ]),
 );
@@ -64,7 +65,7 @@ const steps = [
       <div class="fields">
         {step1.map((f) => (
           <div class="field">
-            <label for={`in-${f.key}`}>{f.label}</label>
+            <label for={`in-${f.key}`}>{f.label} <Tip label={`About: ${f.label}`} text={tipText(f)} /></label>
             <select id={`in-${f.key}`} name={f.key}>
               <option value="">Select…</option>
               {f.vocab.map((t) => <option value={t.id}>{t.label}</option>)}
@@ -79,12 +80,7 @@ const steps = [
       <div class="fields">
         {step2.map((f) => (
           <div class="field">
-            <label for={`in-${f.key}`}>
-              {f.label}
-              {f.key === 'autonomy_level' && (
-                <Tip label="About the autonomy levels" text={f.vocab.map((t) => `${t.label}: ${t.description ?? ''}`).join(' ')} />
-              )}
-            </label>
+            <label for={`in-${f.key}`}>{f.label} <Tip label={`About: ${f.label}`} text={tipText(f)} /></label>
             <select id={`in-${f.key}`} name={f.key}>
               <option value="">Select…</option>
               {f.vocab.map((t) => <option value={t.id}>{t.label}</option>)}
@@ -119,6 +115,12 @@ const steps = [
     <fieldset data-step="3">
       <legend>4. Challenges &amp; governance responses</legend>
       <p class="hint">Challenges are a core part of this resource.</p>
+      <fieldset class="group link-choice">
+        <legend class="sub">Link challenges and governance responses to this use case?</legend>
+        <label class="check"><input type="radio" name="link_to_case" value="yes" checked /> Yes — show them with this use case</label>
+        <label class="check"><input type="radio" name="link_to_case" value="no" /> No — record them without linking them to this use case</label>
+        <p class="hint">Linking is optional. Unlinked entries can still inform the Challenges and Governance responses pages.</p>
+      </fieldset>
       <fieldset class="group">
         <legend class="sub">Challenges encountered</legend>
         <div class="checks">
@@ -153,6 +155,15 @@ const steps = [
           <input type="text" id="in-other-response" name="other_responses" />
         </div>
       </fieldset>
+      <fieldset class="group">
+        <legend class="sub">Tools and metrics used <Badge kind="later" /></legend>
+        <div class="field tm-field">
+          <label for="in-tm">Tools or metrics from the OECD Catalogue of Tools &amp; Metrics</label>
+          <p class="hint" id="tm-hint">Start typing a name. Suggestions would come from the catalogue through a connection to it.</p>
+          <input type="text" id="in-tm" name="tools_metrics" autocomplete="off" aria-describedby="tm-hint" aria-controls="tm-suggest" />
+          <div id="tm-suggest" class="tm-suggest" role="status" hidden>[To be curated] Matching catalogue entries would be listed here.</div>
+        </div>
+      </fieldset>
     </fieldset>
 
     <fieldset data-step="4">
@@ -171,7 +182,6 @@ const steps = [
     <fieldset data-step="5">
       <legend>6. Disclosure &amp; review</legend>
       <p>You do not need to name the model or product used. This resource focuses on use cases, challenges and governance responses.</p>
-      <label class="check"><input type="checkbox" name="in_oecd_ai_subset" /> This use case may be featured in the OECD.AI subset <Badge kind="later" /></label>
       <p>Submissions are reviewed for completeness and consistency before publication; they are not assessed.</p>
       <p class="prototype-note" role="note"><strong>This is a prototype — no data is submitted.</strong></p>
     </fieldset>
@@ -198,7 +208,6 @@ const steps = [
     challenges: string[];
     responses: string[];
     haip_linked: boolean;
-    in_oecd_ai_subset: boolean;
   }
 
   const form = document.querySelector<HTMLFormElement>('[data-form]');
@@ -227,6 +236,12 @@ const steps = [
   prev?.addEventListener('click', () => show(current - 1));
   next?.addEventListener('click', () => show(current + 1));
   form?.addEventListener('submit', (e) => e.preventDefault());
+
+  const tmInput = document.querySelector<HTMLInputElement>('#in-tm');
+  const tmSuggest = document.getElementById('tm-suggest');
+  tmInput?.addEventListener('input', () => {
+    if (tmSuggest) tmSuggest.hidden = tmInput.value.trim() === '';
+  });
   show(0, false);
 
   // Update mode: prefill from an existing use case.
@@ -255,8 +270,6 @@ const steps = [
     form.querySelectorAll<HTMLInputElement>('input[name="responses"]').forEach((c) => (c.checked = data.responses.includes(c.value)));
     const haip = form.elements.namedItem('haip_linked');
     if (haip instanceof HTMLInputElement) haip.checked = data.haip_linked;
-    const subset = form.elements.namedItem('in_oecd_ai_subset');
-    if (subset instanceof HTMLInputElement) subset.checked = data.in_oecd_ai_subset;
   }
 </script>
 
@@ -279,6 +292,8 @@ const steps = [
   .nav { display: flex; gap: 12px; justify-content: flex-end; border-top: 1px solid var(--border); padding-top: 14px; margin-top: 8px; }
   .prototype-note { background: var(--banner-bg); color: var(--banner-text); padding: 8px 12px; border-radius: 6px; }
   .note { margin: 12px 0; }
+  .link-choice .check { margin-bottom: 4px; }
+  .tm-suggest { border: 1px dashed var(--border); border-radius: 6px; padding: 8px 10px; font-size: 0.9rem; color: var(--muted); background: var(--surface-alt); }
   legend:focus { outline: none; }
   @media (prefers-color-scheme: dark) { .stepper button[aria-current='step'] .num { background: var(--accent); color: #11141f; } }
 </style>

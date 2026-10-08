@@ -1,35 +1,12 @@
 ---
 import Base from '../../layouts/Base.astro';
 import Badge from '../../components/Badge.astro';
-import CaseExplorer, { type CaseSummary } from '../../components/CaseExplorer';
+import CaseExplorer from '../../components/CaseExplorer';
 import { url } from '../../lib/url';
-import { formatDate, getTaxonomy, isoDate } from '../../lib/taxonomy';
+import { explorerProps } from '../../lib/explorer';
+import { getTaxonomy } from '../../lib/taxonomy';
 
-const tax = await getTaxonomy();
-const cases: CaseSummary[] = tax.cases.map((c) => ({
-  id: c.id,
-  title: c.data.title,
-  organisation: c.data.organisation,
-  summary: c.data.summary,
-  sector: c.data.sector,
-  application_area: c.data.application_area,
-  org_type: c.data.org_type,
-  ecosystem_role: c.data.ecosystem_role,
-  region: c.data.region,
-  autonomy_level: c.data.autonomy_level,
-  deployment_stage: c.data.deployment_stage,
-  source_type: c.data.source_type,
-  challenges: c.data.challenges.map((r) => r.id),
-  responses: c.data.responses.map((r) => r.id),
-  last_verified: isoDate(c.data.last_verified),
-  last_verified_label: formatDate(c.data.last_verified),
-  in_oecd_ai_subset: c.data.in_oecd_ai_subset,
-}));
-const challenges = tax.challenges.map((c) => ({ id: c.id, label: c.data.name }));
-const responses = tax.topResponses.flatMap((r) => [
-  { id: r.id, label: r.data.name },
-  ...tax.childrenOf(r.id).map((s) => ({ id: s.id, label: `– ${s.data.name}` })),
-]);
+const props = explorerProps(await getTaxonomy());
 ---
 <Base title="Use cases" description="Browse fictional example use cases of agentic AI in organisations." section="cases">
   <div class="section-head">
@@ -41,14 +18,21 @@ const responses = tax.topResponses.flatMap((r) => [
     Use the filters to narrow the list. Results are not ranked.
   </p>
   <p><a class="btn" href={url('/submit/')}>Submit a use case</a> <a href={url('/compare/')}>Compare use cases</a> <Badge kind="later" /></p>
-  <CaseExplorer client:load cases={cases} challenges={challenges} responses={responses} />
+  <aside class="panel stats" aria-labelledby="stats-h">
+    <div class="section-head">
+      <h2 id="stats-h">Summary statistics</h2>
+      <Badge kind="later" />
+    </div>
+    <p>
+      Totals, such as the number of use cases by sector, region and application area, could be shown here once the
+      collection is large enough for them to be meaningful.
+    </p>
+  </aside>
+  <CaseExplorer client:load {...props} />
 </Base>
 
-<style is:global>
-  .filters { display: grid; gap: 12px; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; margin: 16px 0; }
-  .filters .field { display: flex; flex-direction: column; gap: 4px; }
-  .filters label { font-size: 0.85rem; }
-  .filters .field-reset { justify-content: flex-end; }
-  .count { font-weight: 600; }
-  .card-title { margin: 0; font-size: 1.05rem; }
+<style>
+  .stats { margin: 16px 0 0; border-style: dashed; }
+  .stats h2 { margin: 0; font-size: 1rem; }
+  .stats p { margin: 4px 0 0; font-size: 0.9rem; color: var(--muted); }
 </style>

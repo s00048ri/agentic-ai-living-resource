@@ -1,12 +1,9 @@
 ---
-/** Number of use cases, switching with the full repository / OECD.AI subset view. */
+/** Number of use cases linked to a challenge. */
 import type { Case } from '../lib/taxonomy';
 interface Props {
   cases: Case[];
 }
-const { cases } = Astro.props;
-const full = cases.length;
-const subset = cases.filter((c) => c.data.in_oecd_ai_subset).length;
-const text = (n: number) => `${n} use case${n === 1 ? '' : 's'}`;
+const n = Astro.props.cases.length;
 ---
-<span data-view-only="full">{text(full)}</span><span data-view-only="oecd">{text(subset)} (OECD.AI subset)</span>
+<span>{n} use case{n === 1 ? '' : 's'}</span>

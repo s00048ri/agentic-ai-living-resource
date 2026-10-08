@@ -1,29 +1,18 @@
 ---
 import Base from '../layouts/Base.astro';
 import Badge from '../components/Badge.astro';
-import CaseCard from '../components/CaseCard.astro';
-import ChallengeCount from '../components/ChallengeCount.astro';
+import CaseExplorer from '../components/CaseExplorer';
 import { LINKS, SITE_NAME } from '../config';
 import { url } from '../lib/url';
-import { formatDate, getTaxonomy, isoDate, whatsNew } from '../lib/taxonomy';
+import { explorerProps } from '../lib/explorer';
+import { getTaxonomy } from '../lib/taxonomy';
 
-const tax = await getTaxonomy();
-const featured = [
-  ...tax.cases.filter((c) => c.data.detail_level === 'full').slice(0, 2),
-  ...tax.cases.filter((c) => c.data.detail_level === 'card').slice(0, 1),
-];
-const news = await whatsNew(3);
+const props = explorerProps(await getTaxonomy());
 
 const phases = [
   { step: 'Phase 1', title: 'The agentic AI landscape and its conceptual foundations', note: 'OECD Artificial Intelligence Papers, No. 56', href: LINKS.phase1Paper },
   { step: 'Phase 2', title: 'Agentic AI in organisations: Early insights from practitioner interviews', note: 'OECD Artificial Intelligence Papers, No. 65', href: LINKS.phase2Paper },
   { step: 'Phase 3', title: 'A living resource', note: 'This prototype', href: undefined },
-];
-
-const audiences = [
-  { title: 'For governments & policymakers', text: 'See the challenges organisations report and the governance responses they adopt.', href: url('/challenges/') },
-  { title: 'For organisations considering adoption', text: 'Browse use cases described through common fields and in organisations’ own words.', href: url('/cases/') },
-  { title: 'For researchers', text: 'Learn how entries are structured and how the resource could support research.', href: url('/about/#research') },
 ];
 
 const connected = [
@@ -42,60 +31,51 @@ const connected = [
     <p class="neutral">Entries are self-reported or drawn from interviews. They are not assessed, rated or endorsed by GPAI or the OECD.</p>
   </section>
 
-  <ol class="phases" aria-label="Project phases">
-    {phases.map((p, i) => (
-      <li class={i === phases.length - 1 ? 'current' : undefined}>
-        <span class="step">{p.step}</span>
-        <span class="phase-title">{p.href ? <a href={p.href}>{p.title}</a> : p.title}</span>
-        <span class="meta">{p.note}</span>
-      </li>
-    ))}
-  </ol>
-
-  <section aria-labelledby="audiences">
-    <h2 id="audiences">Where to start</h2>
-    <div class="grid">
-      {audiences.map((a) => (
-        <a class="card entry" href={a.href}>
-          <h3>{a.title}</h3>
-          <p>{a.text}</p>
-        </a>
+  <section aria-labelledby="why">
+    <h2 id="why" class="visually-hidden">How this resource came about</h2>
+    <p>
+      The resource builds on two OECD papers on agentic AI. It is designed to stay current as organisations add and
+      update their own use cases.
+    </p>
+    <ol class="phases" aria-label="Project phases">
+      {phases.map((p, i) => (
+        <li class={i === phases.length - 1 ? 'current' : undefined}>
+          <span class="step">{p.step}</span>
+          <span class="phase-title">{p.href ? <a href={p.href}>{p.title}</a> : p.title}</span>
+          <span class="meta">{p.note}</span>
+        </li>
       ))}
+    </ol>
+  </section>
+
+  <section aria-labelledby="start">
+    <h2 id="start">Where to start</h2>
+    <div class="entries">
+      <a class="card entry" href="#explore">
+        <h3>For organisations considering adoption</h3>
+        <p>Browse use cases described through common fields and in organisations’ own words. Filter them below.</p>
+      </a>
+      <div class="card entry">
+        <h3>Learning from challenges and governance responses</h3>
+        <p>See the challenges organisations report and the governance responses they adopt.</p>
+        <p class="links">
+          <a href={url('/challenges/')}>Challenges</a>
+          <a href={url('/responses/')}>Governance responses</a>
+        </p>
+      </div>
     </div>
   </section>
 
-  <section aria-labelledby="explore">
+  <section aria-labelledby="explore-h" id="explore">
     <div class="section-head">
-      <h2 id="explore">Explore use cases</h2>
+      <h2 id="explore-h">Explore use cases</h2>
       <Badge kind="mvp" />
-    </div>
-    <div class="grid">
-      {featured.map((c) => <CaseCard entry={c} />)}
     </div>
     <p class="actions">
-      <a class="btn btn-secondary" href={url('/cases/')}>View all use cases</a>
       <a class="btn" href={url('/submit/')}>Submit a use case</a>
+      <a class="btn btn-secondary" href={url('/cases/')}>Open the use case list</a>
     </p>
-  </section>
-
-  <section aria-labelledby="challenges">
-    <div class="section-head">
-      <h2 id="challenges">Challenges</h2>
-      <Badge kind="mvp" />
-    </div>
-    <p>The challenges organisations report when deploying agentic AI, in eleven categories. Select one to see a summary.</p>
-    <div class="chips" role="group" aria-label="Challenges">
-      {tax.challenges.map((c, i) => (
-        <button type="button" class="chip" aria-expanded={i === 0 ? 'true' : 'false'} aria-controls={`ch-${c.id}`} data-chip>{c.data.name}</button>
-      ))}
-    </div>
-    {tax.challenges.map((c, i) => (
-      <div class="panel chip-panel" id={`ch-${c.id}`} hidden={i !== 0}>
-        <h3>{c.data.name}</h3>
-        <p>{c.data.summary}</p>
-        <p class="meta"><ChallengeCount cases={tax.casesForChallenge(c.id)} /> · <a href={url(`/challenges/${c.id}/`)}>Details, use cases and governance responses</a></p>
-      </div>
-    ))}
+    <CaseExplorer client:load headingLevel={3} {...props} />
   </section>
 
   <section aria-labelledby="connected">
@@ -109,39 +89,12 @@ const connected = [
       ))}
     </div>
   </section>
-
-  <section aria-labelledby="news">
-    <h2 id="news">What’s new</h2>
-    <p class="illustrative">Illustrative update history drawn from the fictional use cases.</p>
-    <ul class="news">
-      {news.map((n) => (
-        <li data-oecd-subset={String(n.case.data.in_oecd_ai_subset)}>
-          <time datetime={isoDate(n.date)}>{formatDate(n.date)}</time>
-          <span><a href={url(`/cases/${n.case.id}/`)}>{n.case.data.organisation}</a>: {n.note}</span>
-        </li>
-      ))}
-    </ul>
-  </section>
 </Base>
-
-<script>
-  const chips = document.querySelectorAll<HTMLButtonElement>('[data-chip]');
-  chips.forEach((chip) => {
-    chip.addEventListener('click', () => {
-      chips.forEach((other) => {
-        const open = other === chip;
-        other.setAttribute('aria-expanded', String(open));
-        const panel = document.getElementById(other.getAttribute('aria-controls') ?? '');
-        if (panel) panel.hidden = !open;
-      });
-    });
-  });
-</script>
 
 <style>
   .hero { padding: 12px 0 8px; }
   .neutral { font-size: 0.95rem; color: var(--muted); }
-  .phases { list-style: none; padding: 0; margin: 16px 0 8px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0; }
+  .phases { list-style: none; padding: 0; margin: 12px 0 8px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0; }
   .phases li { position: relative; display: flex; flex-direction: column; gap: 2px; padding: 12px 28px 12px 16px; background: var(--surface); border: 1px solid var(--border); }
   .phases li:first-child { border-radius: var(--radius) 0 0 var(--radius); }
   .phases li:last-child { border-radius: 0 var(--radius) var(--radius) 0; }
@@ -157,16 +110,11 @@ const connected = [
     .phases li + li { border-top: 0; }
     .phases li:not(:last-child)::after { content: '↓'; }
   }
-  a.entry { text-decoration: none; color: var(--text); border-top: 4px solid var(--navy); }
+  .entries { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
+  .entry { border-top: 4px solid var(--navy); }
+  a.entry { text-decoration: none; color: var(--text); }
   a.entry:hover { border-color: var(--accent); }
-  a.entry h3 { color: var(--link); }
-  .actions { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 16px; }
-  .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
-  .chip { font: inherit; font-size: 0.88rem; cursor: pointer; border: 1px solid var(--border); background: var(--surface); color: var(--text); border-radius: 999px; padding: 4px 12px; }
-  .chip[aria-expanded='true'] { background: var(--navy); border-color: var(--navy); color: #fff; }
-  @media (prefers-color-scheme: dark) { .chip[aria-expanded='true'] { background: var(--accent); border-color: var(--accent); color: #11141f; } }
-  .chip-panel h3 { margin-top: 0; }
-  .news { list-style: none; padding: 0; margin: 0; }
-  .news li { display: flex; gap: 12px; flex-wrap: wrap; padding: 8px 0; border-bottom: 1px solid var(--border); }
-  .news time { font-weight: 600; min-width: 10em; color: var(--muted); }
+  .entry h3 { color: var(--link); }
+  .links { display: flex; gap: 16px; flex-wrap: wrap; font-weight: 600; margin-top: 4px; }
+  .actions { display: flex; gap: 12px; flex-wrap: wrap; margin: 8px 0 0; }
 </style>

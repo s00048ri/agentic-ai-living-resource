@@ -30,7 +30,8 @@ const research = (await getCollection('references')).filter((r) => r.data.type =
   <p class="meta">Source: <a href={LINKS.phase2Paper}>OECD (2026), OECD Artificial Intelligence Papers, No. 65</a>, {d.source_ref}</p>
 
   <section aria-labelledby="cases-h">
-    <h2 id="cases-h">Use cases reporting this challenge</h2>
+    <h2 id="cases-h">Use cases linking this challenge</h2>
+    <p class="meta">Organisations choose whether to link challenges to their use case.</p>
     {cases.length > 0 ? (
       <div class="grid">{cases.map((c) => <CaseCard entry={c} />)}</div>
     ) : (
