@@ -1,0 +1,2 @@
+# Lines containing any of the fixed strings below are excluded from scripts/check-terms.sh.
+# One string per line. Lines starting with # and blank lines are ignored.

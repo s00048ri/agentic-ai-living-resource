@@ -1,0 +1,13 @@
+---
+interface Props {
+  kind: 'fictional' | 'mvp' | 'later';
+}
+const { kind } = Astro.props;
+const text = { fictional: 'Fictional example', mvp: 'MVP 2027', later: 'Later' }[kind];
+const title = {
+  fictional: 'This organisation and use case are fictional.',
+  mvp: 'Feature status: planned for the 2027 minimum viable product.',
+  later: 'Feature status: could be added later.',
+}[kind];
+---
+<span class={`badge badge-${kind}`} title={title}>{text}</span>

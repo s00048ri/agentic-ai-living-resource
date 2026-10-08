@@ -1,0 +1,117 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../layouts/Base.astro';
+import Badge from '../components/Badge.astro';
+import LicenceNotice from '../components/LicenceNotice.astro';
+import { FEEDBACK_URL, LINKS } from '../config';
+import { url } from '../lib/url';
+
+const sources = (await getCollection('references')).filter((r) => r.data.status === 'real');
+---
+<Base title="About and methodology" description="What this prototype resource is and how entries are structured." section="about">
+  <div class="section-head">
+    <h1>About and methodology</h1>
+  </div>
+
+  <section aria-labelledby="what">
+    <h2 id="what">What this resource is</h2>
+    <p>
+      This prototype illustrates how a continuously updated resource on agentic AI in organisations could be
+      structured. It builds on two earlier pieces of work: a paper setting out the <a href={LINKS.phase1Paper}>conceptual
+      foundations of agentic AI</a>, and a paper presenting <a href={LINKS.phase2Paper}>early insights from practitioner
+      interviews</a>. The challenges and governance-responses categories used here are adapted from the second paper.
+    </p>
+  </section>
+
+  <section aria-labelledby="neutral">
+    <h2 id="neutral">Neutral and fact-based</h2>
+    <p>
+      Entries are self-reported by organisations or drawn from interviews. They are not assessed, rated or endorsed by
+      GPAI or the OECD. The resource does not score, rank or compare organisations' performance, and lists are not
+      ordered by any measure of quality. Use cases do not name the specific models or products used; the focus is on
+      use cases, challenges and governance responses.
+    </p>
+  </section>
+
+  <section aria-labelledby="fields">
+    <h2 id="fields">Common fields and free narrative</h2>
+    <p>
+      Each use case combines two kinds of information. <strong>Common fields</strong> — such as sector, application
+      area, deployment stage, autonomy level, challenges and governance responses — use shared categories so that use
+      cases can be filtered and compared. <strong>In their own words</strong> is a free narrative in which the
+      organisation describes the use case, what changed and what did not work as expected.
+    </p>
+    <p>
+      The autonomy levels are provisional definitions for this prototype. Where a governance response is linked to a
+      challenge, the link is either made in the source paper or marked as a mapping proposed for this prototype.
+    </p>
+  </section>
+
+  <section aria-labelledby="current">
+    <h2 id="current">How entries stay current</h2>
+    <p>
+      Organisations can update their own use cases at any time. Entries are also checked periodically, and each one
+      shows the date it was last verified and a history of changes. Submissions and updates are reviewed for
+      completeness and consistency before publication; they are not assessed.
+    </p>
+  </section>
+
+  <section aria-labelledby="subset">
+    <div class="section-head">
+      <h2 id="subset">A broader repository, with a subset on OECD.AI</h2>
+      <Badge kind="later" />
+    </div>
+    <p>
+      The full repository can be broader; a curated subset could be featured on OECD.AI. Use the view switch at the top
+      of each page to see how the subset would look.
+    </p>
+  </section>
+
+  <section aria-labelledby="connected">
+    <h2 id="connected">Connected OECD work</h2>
+    <ul>
+      <li>
+        <a href={LINKS.haip}>Hiroshima AI Process (HAIP) Reporting Framework</a> — organisations already reporting under
+        the framework could link relevant answers to a use case, to avoid duplicate reporting. <Badge kind="later" />
+      </li>
+      <li>
+        <a href={LINKS.toolsMetrics}>Catalogue of Tools &amp; Metrics</a> — governance responses that take the form of
+        technical or procedural tools could link to the catalogue; see <a href={url('/responses/')}>Governance responses</a>.
+      </li>
+      <li>
+        <a href={LINKS.incidentsMonitor}>AI Incidents Monitor</a> — related incident information could in future be
+        shown alongside the challenges recorded here. <Badge kind="later" />
+      </li>
+    </ul>
+  </section>
+
+  <section aria-labelledby="research-h" id="research">
+    <h2 id="research-h">For researchers</h2>
+    <p>
+      Because every use case uses the same common fields, the resource could serve as a structured dataset on how
+      organisations deploy agentic AI, the challenges they encounter and the governance responses they adopt. Links to
+      related research on each challenge are to be curated. <Badge kind="later" />
+    </p>
+  </section>
+
+  <section aria-labelledby="prototype">
+    <h2 id="prototype">About this prototype</h2>
+    <p>
+      This is a concept prototype for discussion, prepared by the GPAI Tokyo Centre (NICT). It is not an OECD website.
+      All organisations and use cases shown are fictional, and their sources and update histories are illustrative.
+      The submission form does not send any data.
+      {FEEDBACK_URL && <> <a href={FEEDBACK_URL}>Send feedback on this prototype</a>.</>}
+    </p>
+    <p>Feature badges indicate a possible sequence: <Badge kind="mvp" /> for a first version, <Badge kind="later" /> for possible later additions.</p>
+    <h3>Sources</h3>
+    <ul>
+      {sources.map((s) => (
+        <li>
+          {s.data.authors}{s.data.year && ` (${s.data.year})`}, {s.data.url ? <a href={s.data.url}>{s.data.title}</a> : s.data.title}
+        </li>
+      ))}
+    </ul>
+    <h3>Licence and adaptation notice</h3>
+    <LicenceNotice />
+  </section>
+</Base>

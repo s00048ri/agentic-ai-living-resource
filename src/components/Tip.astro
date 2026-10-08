@@ -1,0 +1,11 @@
+---
+/** Accessible tooltip: a small button that reveals its text on hover or keyboard focus. */
+interface Props {
+  text: string;
+  /** Accessible name of the trigger, e.g. "About: Sector". */
+  label: string;
+}
+const { text, label } = Astro.props;
+const id = `tip-${Math.random().toString(36).slice(2, 9)}`;
+---
+<span class="tip"><button type="button" class="tip-btn" aria-label={label} aria-describedby={id}>i</button><span role="tooltip" id={id} class="tip-text">{text}</span></span>

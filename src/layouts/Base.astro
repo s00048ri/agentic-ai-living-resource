@@ -1,0 +1,129 @@
+---
+import '../styles/global.css';
+import Badge from '../components/Badge.astro';
+import LicenceNotice from '../components/LicenceNotice.astro';
+import { BANNER, FEEDBACK_URL, SITE_NAME, SITE_SHORT_NAME } from '../config';
+import { url } from '../lib/url';
+
+interface Props {
+  title: string;
+  description?: string;
+  /** Top-level section, for aria-current in the navigation. */
+  section?: 'cases' | 'challenges' | 'responses' | 'submit' | 'about';
+}
+const { title, description, section } = Astro.props;
+const pageTitle = title === SITE_NAME ? title : `${title} · ${SITE_SHORT_NAME} (Prototype)`;
+
+const nav = [
+  { key: 'cases', href: url('/cases/'), text: 'Use cases' },
+  { key: 'challenges', href: url('/challenges/'), text: 'Challenges' },
+  { key: 'responses', href: url('/responses/'), text: 'Governance responses' },
+  { key: 'submit', href: url('/submit/'), text: 'Submit' },
+  { key: 'about', href: url('/about/'), text: 'About' },
+] as const;
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>{pageTitle}</title>
+    {description && <meta name="description" content={description} />}
+    <link rel="icon" href={url('/favicon.svg')} type="image/svg+xml" />
+    <script is:inline>
+      // Apply the stored view (full repository / OECD.AI subset) before first paint.
+      (function () {
+        var view = 'full';
+        try {
+          var q = new URLSearchParams(location.search).get('view');
+          if (q === 'oecd' || q === 'full') sessionStorage.setItem('aai-view', q);
+          if (sessionStorage.getItem('aai-view') === 'oecd') view = 'oecd';
+        } catch (e) {
+          view = 'full';
+        }
+        document.documentElement.dataset.view = view;
+      })();
+    </script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <div class="banner" role="note" aria-label="Prototype notice">
+      <div class="container"><p><strong>{BANNER.lead}</strong> {BANNER.text}</p></div>
+    </div>
+    <header class="site-header">
+      <div class="container">
+        <a class="site-title" href={url('/')}>{SITE_SHORT_NAME}<small>A Living Resource (Prototype)</small></a>
+        <nav class="site-nav" aria-label="Main">
+          <ul>
+            {nav.map((item) => (
+              <li><a href={item.href} aria-current={section === item.key ? 'page' : undefined}>{item.text}</a></li>
+            ))}
+          </ul>
+        </nav>
+        <div class="view-toggle">
+          <span id="view-toggle-label">View:</span>
+          <span class="segmented" role="group" aria-labelledby="view-toggle-label">
+            <button type="button" data-view-set="full" aria-pressed="true">Full repository</button>
+            <button type="button" data-view-set="oecd" aria-pressed="false">OECD.AI subset</button>
+          </span>
+          <span class="tip"><button type="button" class="tip-btn" aria-label="About the view switch" aria-describedby="view-tip">i</button><span role="tooltip" id="view-tip" class="tip-text">The full repository can be broader; a curated subset could be featured on OECD.AI.</span></span>
+          <Badge kind="later" />
+        </div>
+      </div>
+    </header>
+    <main id="main">
+      <div class="container">
+        <slot />
+      </div>
+    </main>
+    <footer class="site-footer">
+      <div class="container">
+        <p><strong>{SITE_NAME}.</strong> {BANNER.text}</p>
+        <p>Entries are self-reported or drawn from interviews. They are not assessed, rated or endorsed by GPAI or the OECD.</p>
+        {FEEDBACK_URL && <p><a href={FEEDBACK_URL}>Send feedback on this prototype</a></p>}
+        <LicenceNotice />
+      </div>
+    </footer>
+    <script is:inline>
+      (function () {
+        var root = document.documentElement;
+        var buttons = document.querySelectorAll('[data-view-set]');
+        function render() {
+          var view = root.dataset.view === 'oecd' ? 'oecd' : 'full';
+          buttons.forEach(function (b) {
+            b.setAttribute('aria-pressed', String(b.getAttribute('data-view-set') === view));
+          });
+        }
+        buttons.forEach(function (b) {
+          b.addEventListener('click', function () {
+            var view = b.getAttribute('data-view-set') === 'oecd' ? 'oecd' : 'full';
+            try {
+              sessionStorage.setItem('aai-view', view);
+            } catch (e) {}
+            root.dataset.view = view;
+            var u = new URL(location.href);
+            if (view === 'oecd') u.searchParams.set('view', 'oecd');
+            else u.searchParams.delete('view');
+            history.replaceState(history.state, '', u);
+            render();
+            window.dispatchEvent(new CustomEvent('viewchange', { detail: view }));
+          });
+        });
+        render();
+        // Escape hides an open tooltip (WCAG 1.4.13).
+        document.addEventListener('keydown', function (e) {
+          if (e.key !== 'Escape') return;
+          document.querySelectorAll('.tip').forEach(function (t) { t.classList.add('tip-dismissed'); });
+        });
+        document.addEventListener('focusin', function () {
+          document.querySelectorAll('.tip-dismissed').forEach(function (t) { t.classList.remove('tip-dismissed'); });
+        });
+        document.addEventListener('mouseover', function (e) {
+          var t = e.target instanceof Element && e.target.closest('.tip-dismissed');
+          if (!t) document.querySelectorAll('.tip-dismissed').forEach(function (x) { x.classList.remove('tip-dismissed'); });
+        });
+      })();
+    </script>
+  </body>
+</html>

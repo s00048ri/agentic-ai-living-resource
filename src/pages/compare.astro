@@ -1,0 +1,45 @@
+---
+import Base from '../layouts/Base.astro';
+import Badge from '../components/Badge.astro';
+import Compare, { type CompareRow } from '../components/Compare';
+import { COMMON_FIELDS } from '../lib/fields';
+import { BENEFITS, label } from '../lib/vocabularies';
+import { getTaxonomy } from '../lib/taxonomy';
+
+const tax = await getTaxonomy();
+const per = (fn: (c: (typeof tax.cases)[number]) => string | string[]) =>
+  Object.fromEntries(tax.cases.map((c) => [c.id, fn(c)]));
+
+const rows: CompareRow[] = [
+  { label: 'Use case', values: per((c) => c.data.title) },
+  ...COMMON_FIELDS.map((f) => ({ label: f.label, values: per((c) => label(f.vocab, c.data[f.key])) })),
+  { label: 'Challenges', values: per((c) => c.data.challenges.map((r) => tax.challenge(r.id).data.name)) },
+  { label: 'Governance responses', values: per((c) => c.data.responses.map((r) => tax.response(r.id).data.name)) },
+  { label: 'Benefits', values: per((c) => c.data.benefits.map((b) => label(BENEFITS, b))) },
+  { label: 'Human oversight', values: per((c) => c.data.human_oversight) },
+];
+const cases = tax.cases.map((c) => ({
+  id: c.id,
+  title: c.data.title,
+  organisation: c.data.organisation,
+  in_oecd_ai_subset: c.data.in_oecd_ai_subset,
+}));
+---
+<Base title="Compare use cases" description="Compare the common fields of up to three use cases." section="cases">
+  <div class="section-head">
+    <h1>Compare use cases</h1>
+    <Badge kind="later" />
+  </div>
+  <p class="lead">Common fields of up to three use cases, side by side. The comparison describes; it does not rate.</p>
+  <Compare client:load cases={cases} rows={rows} />
+</Base>
+
+<style is:global>
+  .pickers { display: grid; gap: 12px; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); margin: 16px 0; }
+  .pickers .field { display: flex; flex-direction: column; gap: 4px; }
+  .table-wrap { overflow-x: auto; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); }
+  .compare th[scope='col'] { min-width: 200px; }
+  .compare th[scope='row'] { color: var(--muted); font-size: 0.9rem; min-width: 140px; }
+  .compare ul { margin: 0; padding-left: 1.1em; }
+  .compare .badge { margin-left: 6px; }
+</style>

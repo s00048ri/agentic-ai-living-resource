@@ -1,0 +1,285 @@
+---
+import { render } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import Badge from '../../components/Badge.astro';
+import Tip from '../../components/Tip.astro';
+import TmLabel from '../../components/TmLabel.astro';
+import { url } from '../../lib/url';
+import { COMMON_FIELDS, COMMON_FIELD_NOTE } from '../../lib/fields';
+import { BENEFITS, MODEL_DISCLOSURE, SOURCE_TYPES, label, term } from '../../lib/vocabularies';
+import { formatDate, getTaxonomy, isoDate, type Case } from '../../lib/taxonomy';
+
+export async function getStaticPaths() {
+  const { cases } = await getTaxonomy();
+  return cases.map((entry) => ({ params: { id: entry.id }, props: { entry } }));
+}
+
+interface Props {
+  entry: Case;
+}
+const { entry } = Astro.props;
+const d = entry.data;
+const tax = await getTaxonomy();
+const { Content } = await render(entry);
+const history = [...d.history].sort((a, b) => b.date.getTime() - a.date.getTime());
+const isFull = d.detail_level === 'full';
+---
+<Base title={d.title} description={d.summary} section="cases">
+  <p class="crumbs"><a href={url('/cases/')}>Use cases</a> <Badge kind="mvp" /></p>
+  <h1>{d.title}</h1>
+  <p class="org">{d.organisation} <Badge kind="fictional" /></p>
+  <p class="lead">{d.summary}</p>
+  <p class="legend">
+    <span class="badge badge-common">Common field</span> structured information used to compare use cases ·
+    <span class="badge badge-narrative">Free narrative</span> written by the organisation
+  </p>
+
+  <div class="detail">
+    <aside class="col-common" aria-label="Common fields">
+      <section class="common panel" aria-labelledby="glance">
+        <div class="section-head">
+          <h2 id="glance">At a glance</h2>
+          <span class="badge badge-common">Common fields</span>
+        </div>
+        <table>
+          <tbody>
+            {COMMON_FIELDS.map((f) => {
+              const t = term(f.vocab, d[f.key]);
+              return (
+                <tr>
+                  <th scope="row">
+                    {f.label}
+                    <Tip label={`About: ${f.label}`} text={`${f.definition} ${COMMON_FIELD_NOTE}`} />
+                  </th>
+                  <td>
+                    {t.label}
+                    {t.description && <Tip label={`Definition: ${t.label}`} text={t.description} />}
+                  </td>
+                </tr>
+              );
+            })}
+            <tr>
+              <th scope="row">
+                Model
+                <Tip label="About: Model" text={`Whether the underlying model is named. ${COMMON_FIELD_NOTE}`} />
+              </th>
+              <td>
+                {label(MODEL_DISCLOSURE, d.model_disclosure)}
+                <Tip
+                  label="Why models are not named"
+                  text="This resource focuses on use cases, challenges and governance responses rather than specific models or products."
+                />
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section class="panel provenance" aria-labelledby="provenance">
+        <h2 id="provenance">Provenance</h2>
+        <ul>
+          <li class="illustrative">Illustrative source type: {label(SOURCE_TYPES, d.source_type)}</li>
+          {d.haip_linked && (
+            <li class="illustrative">Illustrative: linked to a HAIP report <Badge kind="later" /></li>
+          )}
+          <li class="illustrative">
+            {d.in_oecd_ai_subset
+              ? 'Illustrative: included in the OECD.AI subset'
+              : 'Illustrative: not included in the OECD.AI subset'}
+          </li>
+        </ul>
+      </section>
+
+      <section class="panel" aria-labelledby="history">
+        <h2 id="history">Illustrative update history</h2>
+        <p class="illustrative">
+          Last verified (illustrative): <time datetime={isoDate(d.last_verified)}>{formatDate(d.last_verified)}</time>
+        </p>
+        <ol class="timeline">
+          {history.map((h) => (
+            <li>
+              <time datetime={isoDate(h.date)}>{formatDate(h.date)}</time>
+              <span>{h.note}</span>
+            </li>
+          ))}
+        </ol>
+        <p><a class="btn btn-secondary" href={url(`/submit/?update=${entry.id}`)}>Update this use case</a> <Badge kind="mvp" /></p>
+      </section>
+
+      <section class="panel compare-add" aria-labelledby="compare-h">
+        <h2 id="compare-h" class="visually-hidden">Compare</h2>
+        <label class="check"><input type="checkbox" data-compare-id={entry.id} /> Add to compare</label>
+        <Badge kind="later" />
+        <p class="meta" data-compare-status></p>
+      </section>
+    </aside>
+
+    <div class="col-main">
+      <section class="narrative" aria-labelledby="own-words">
+        <div class="section-head">
+          <h2 id="own-words">In their own words</h2>
+          <span class="badge badge-narrative">Free narrative</span>
+        </div>
+        <p class="illustrative">In a live service, this section would be written by the organisation. This text is illustrative.</p>
+        <div class="prose"><Content /></div>
+      </section>
+
+      <section class="common-block" aria-labelledby="challenges-h">
+        <div class="section-head">
+          <h2 id="challenges-h">Challenges encountered</h2>
+          <span class="badge badge-common">Common field</span>
+        </div>
+        <ul class="tags">
+          {d.challenges.map((ref) => (
+            <li><a class="tag" href={url(`/challenges/${ref.id}/`)}>{tax.challenge(ref.id).data.name}</a></li>
+          ))}
+        </ul>
+      </section>
+
+      <section class="common-block" aria-labelledby="responses-h">
+        <div class="section-head">
+          <h2 id="responses-h">Governance responses</h2>
+          <span class="badge badge-common">Common field</span>
+        </div>
+        <ul class="plain">
+          {d.responses.map((ref) => {
+            const r = tax.response(ref.id);
+            const parent = r.data.parent ? tax.response(r.data.parent.id) : undefined;
+            return (
+              <li>
+                <a href={url(`/responses/#${r.id}`)}>{r.data.name}</a>
+                <TmLabel tm={r.data.tm} compact />
+                {parent && <span class="meta"> — part of {parent.data.name}</span>}
+              </li>
+            );
+          })}
+        </ul>
+        <p class="meta">
+          <span class="tm-key" aria-hidden="true">
+            <svg width="14" height="14" viewBox="0 0 16 16"><path fill="none" stroke="currentColor" stroke-width="1.6" d="M6.5 9.5l3-3M5 7.5L3.6 8.9a2.3 2.3 0 0 0 3.3 3.3L8.3 10.8M11 8.5l1.4-1.4a2.3 2.3 0 0 0-3.3-3.3L7.7 5.2" /></svg>
+          </span>
+          Could link to the OECD Catalogue of Tools &amp; Metrics.
+        </p>
+      </section>
+
+      <section class="common-block" aria-labelledby="benefits-h">
+        <div class="section-head">
+          <h2 id="benefits-h">Benefits</h2>
+          <span class="badge badge-common">Common field</span>
+        </div>
+        <ul class="tags">{d.benefits.map((b) => <li class="tag">{label(BENEFITS, b)}</li>)}</ul>
+      </section>
+
+      {d.lessons && (
+        <section aria-labelledby="lessons-h">
+          <div class="section-head">
+            <h2 id="lessons-h">Lessons learned</h2>
+            <span class="badge badge-narrative">Free narrative</span>
+          </div>
+          <ul>{d.lessons.map((l) => <li>{l}</li>)}</ul>
+        </section>
+      )}
+
+      <section class="common-block" aria-labelledby="oversight-h">
+        <div class="section-head">
+          <h2 id="oversight-h">{isFull ? 'Delegation & accountability' : 'Human oversight'}</h2>
+          <span class="badge badge-common">Common field</span>
+        </div>
+        {d.delegation && (
+          <dl class="delegation">
+            <dt>Decisions delegated to the agent</dt>
+            <dd>{d.delegation.decisions_delegated}</dd>
+            <dt>Approvals required</dt>
+            <dd>{d.delegation.approvals_required}</dd>
+            <dt>Accountability</dt>
+            <dd>{d.delegation.accountability_owner}</dd>
+            <dt>Human oversight</dt>
+            <dd><ul>{d.human_oversight.map((o) => <li>{o}</li>)}</ul></dd>
+          </dl>
+        )}
+        {!d.delegation && <ul>{d.human_oversight.map((o) => <li>{o}</li>)}</ul>}
+      </section>
+    </div>
+  </div>
+</Base>
+
+<script>
+  import { url } from '../../lib/url';
+
+  const KEY = 'aai-compare';
+  const MAX = 3;
+  const box = document.querySelector<HTMLInputElement>('[data-compare-id]');
+  const status = document.querySelector<HTMLElement>('[data-compare-status]');
+
+  function read(): string[] {
+    try {
+      const v: unknown = JSON.parse(sessionStorage.getItem(KEY) ?? '[]');
+      return Array.isArray(v) ? v.filter((x): x is string => typeof x === 'string').slice(0, MAX) : [];
+    } catch {
+      return [];
+    }
+  }
+  function write(list: string[]) {
+    try {
+      sessionStorage.setItem(KEY, JSON.stringify(list));
+    } catch {
+      /* comparison selection is a convenience only */
+    }
+  }
+  function renderStatus(list: string[]) {
+    if (!status) return;
+    status.textContent = '';
+    if (list.length === 0) return;
+    const link = document.createElement('a');
+    link.href = `${url('/compare/')}?ids=${list.map(encodeURIComponent).join(',')}`;
+    link.textContent = `Open comparison (${list.length} selected, up to ${MAX})`;
+    status.append(link);
+  }
+
+  if (box) {
+    const id = box.dataset.compareId ?? '';
+    const list = read();
+    box.checked = list.includes(id);
+    renderStatus(list);
+    box.addEventListener('change', () => {
+      let next = read().filter((x) => x !== id);
+      if (box.checked) {
+        if (next.length >= MAX) next = next.slice(1);
+        next.push(id);
+      }
+      write(next);
+      renderStatus(next);
+    });
+  }
+</script>
+
+<style>
+  .crumbs { margin: 0; font-size: 0.9rem; }
+  .org { font-weight: 600; margin-bottom: 0.4em; }
+  .legend { font-size: 0.85rem; color: var(--muted); }
+  .detail { display: grid; gap: 24px; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); align-items: start; margin-top: 12px; }
+  .col-common { display: flex; flex-direction: column; gap: 16px; }
+  .col-common h2 { margin-top: 0; font-size: 1.15rem; }
+  .common { background: var(--surface-alt); border-color: var(--border); border-top: 4px solid var(--navy); }
+  .common th { width: 45%; font-size: 0.9rem; color: var(--muted); }
+  .common td { font-weight: 600; }
+  .narrative { background: var(--surface); border: 1px solid var(--border); border-left: 5px solid var(--accent); border-radius: var(--radius); padding: 18px 22px; }
+  .narrative h2 { margin-top: 0; }
+  .prose { font-size: 1.05rem; line-height: 1.7; }
+  .col-main > section + section { margin-top: 8px; }
+  .provenance ul, .plain { list-style: none; padding: 0; margin: 0; }
+  .provenance li + li, .plain li + li { margin-top: 6px; }
+  .timeline { list-style: none; margin: 0 0 12px; padding: 0 0 0 14px; border-left: 2px solid var(--border); }
+  .timeline li { position: relative; margin-bottom: 10px; display: flex; flex-direction: column; font-size: 0.92rem; }
+  .timeline li::before { content: ''; position: absolute; left: -20px; top: 6px; width: 10px; height: 10px; border-radius: 50%; background: var(--accent); }
+  .timeline time { font-weight: 600; font-size: 0.85rem; color: var(--muted); }
+  .delegation dt { font-weight: 600; margin-top: 10px; }
+  .delegation dd { margin: 2px 0 0; }
+  .delegation dd ul { padding-left: 1.2em; margin: 0; }
+  .meta { font-size: 0.85rem; color: var(--muted); }
+  .tm-key { color: var(--link); vertical-align: middle; }
+  .check { font-weight: 600; }
+  @media (max-width: 820px) {
+    .detail { grid-template-columns: minmax(0, 1fr); }
+  }
+</style>

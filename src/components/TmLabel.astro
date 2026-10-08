@@ -1,0 +1,26 @@
+---
+import { LINKS } from '../config';
+interface Props {
+  tm: { tool_type: 'technical' | 'procedural' } | null;
+  compact?: boolean;
+}
+const { tm, compact = false } = Astro.props;
+const text = tm ? `Could link to the T&M Catalogue (${tm.tool_type} tool)` : 'Recorded here; not a catalogue tool';
+---
+{compact ? (
+  tm && (
+    <span class="tm-icon" title={text}>
+      <svg aria-hidden="true" width="16" height="16" viewBox="0 0 16 16"><path fill="none" stroke="currentColor" stroke-width="1.6" d="M6.5 9.5l3-3M5 7.5L3.6 8.9a2.3 2.3 0 0 0 3.3 3.3L8.3 10.8M11 8.5l1.4-1.4a2.3 2.3 0 0 0-3.3-3.3L7.7 5.2" /></svg>
+      <span class="visually-hidden">{text}</span>
+    </span>
+  )
+) : tm ? (
+  <a class="tm-label tm-yes" href={LINKS.toolsMetrics}>{text}</a>
+) : (
+  <span class="tm-label tm-no">{text}</span>
+)}
+<style>
+  .tm-icon { color: var(--link); display: inline-flex; vertical-align: middle; margin-left: 4px; }
+  .tm-label { font-size: 0.8rem; font-weight: 600; }
+  .tm-no { color: var(--muted); }
+</style>

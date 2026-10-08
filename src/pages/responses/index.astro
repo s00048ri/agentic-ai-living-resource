@@ -1,0 +1,42 @@
+---
+import Base from '../../layouts/Base.astro';
+import Badge from '../../components/Badge.astro';
+import ResponseCard from '../../components/ResponseCard.astro';
+import StructureDiagram from '../../components/StructureDiagram.astro';
+import { getTaxonomy } from '../../lib/taxonomy';
+
+const tax = await getTaxonomy();
+---
+<Base title="Governance responses" description="Governance responses organisations adopt to address the challenges of agentic AI." section="responses">
+  <div class="section-head">
+    <h1>Governance responses</h1>
+    <Badge kind="mvp" />
+  </div>
+  <p class="lead">
+    The measures organisations describe adopting in response to the challenges of agentic AI, grouped into seven
+    categories. "Layered technical safeguards" comprises ten more specific measures.
+  </p>
+  <StructureDiagram />
+  <div class="responses">
+    {tax.topResponses.map((r) => {
+      const children = tax.childrenOf(r.id);
+      return children.length === 0 ? (
+        <ResponseCard entry={r} />
+      ) : (
+        <div class="group">
+          <ResponseCard entry={r}>
+            <div class="grid sub-grid">
+              {children.map((s) => <ResponseCard entry={s} sub />)}
+            </div>
+          </ResponseCard>
+        </div>
+      );
+    })}
+  </div>
+</Base>
+
+<style>
+  .responses { display: grid; gap: 16px; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); }
+  .group { grid-column: 1 / -1; }
+  .sub-grid { margin-top: 12px; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); }
+</style>

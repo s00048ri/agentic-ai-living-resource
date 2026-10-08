@@ -1,0 +1,25 @@
+---
+import Badge from './Badge.astro';
+import { url } from '../lib/url';
+import { AUTONOMY_LEVELS, SECTORS, label } from '../lib/vocabularies';
+import { getTaxonomy, isoDate, formatDate, type Case } from '../lib/taxonomy';
+
+interface Props {
+  entry: Case;
+  headingLevel?: 'h2' | 'h3';
+}
+const { entry, headingLevel = 'h3' } = Astro.props;
+const tax = await getTaxonomy();
+const d = entry.data;
+const Heading = headingLevel;
+---
+<article class="card" data-oecd-subset={String(d.in_oecd_ai_subset)}>
+  <Heading><a href={url(`/cases/${entry.id}/`)}>{d.title}</a></Heading>
+  <p class="meta">{d.organisation} <Badge kind="fictional" /></p>
+  <p>{d.summary}</p>
+  <p class="meta">{label(SECTORS, d.sector)} · {label(AUTONOMY_LEVELS, d.autonomy_level)}</p>
+  <ul class="tags" aria-label="Challenges">
+    {d.challenges.slice(0, 3).map((ref) => <li class="tag">{tax.challenge(ref.id).data.name}</li>)}
+  </ul>
+  <p class="meta more">Last verified (illustrative): <time datetime={isoDate(d.last_verified)}>{formatDate(d.last_verified)}</time></p>
+</article>

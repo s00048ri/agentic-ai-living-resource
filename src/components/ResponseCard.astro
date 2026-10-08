@@ -1,0 +1,57 @@
+---
+import TmLabel from './TmLabel.astro';
+import { url } from '../lib/url';
+import { getTaxonomy, type Response } from '../lib/taxonomy';
+
+interface Props {
+  entry: Response;
+  sub?: boolean;
+}
+const { entry, sub = false } = Astro.props;
+const tax = await getTaxonomy();
+const d = entry.data;
+const adopted = tax.casesForResponse(entry.id);
+const Heading = sub ? 'h4' : 'h3';
+---
+<article class={sub ? 'card response sub' : 'card response'} id={entry.id}>
+  <Heading>{d.name}</Heading>
+  <p>{d.summary}</p>
+  <p class="meta">Source: {d.source_ref}{d.cross_cutting && ' · Presented in the source as a cross-cutting practice'}</p>
+  {d.addresses.length > 0 && (
+    <div>
+      <p class="sub-h">Challenges addressed</p>
+      <ul class="plain">
+        {d.addresses.map((a) => (
+          <li>
+            <a href={url(`/challenges/${a.challenge.id}/`)}>{tax.challenge(a.challenge.id).data.name}</a>
+            {a.basis === 'editorial' && <span class="editorial-note"> — Mapping proposed for this prototype</span>}
+          </li>
+        ))}
+      </ul>
+    </div>
+  )}
+  <div>
+    <p class="sub-h">Use cases reporting this response</p>
+    {adopted.length > 0 ? (
+      <ul class="plain">
+        {adopted.map((c) => (
+          <li data-oecd-subset={String(c.data.in_oecd_ai_subset)}>
+            <a href={url(`/cases/${c.id}/`)}>{c.data.organisation}</a> <span class="meta">(fictional)</span>
+          </li>
+        ))}
+      </ul>
+    ) : (
+      <p class="meta">None recorded yet.</p>
+    )}
+  </div>
+  <p class="more"><TmLabel tm={d.tm} /></p>
+  <slot />
+</article>
+
+<style>
+  .response h3, .response h4 { margin: 0; }
+  .sub-h { font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); margin: 6px 0 2px; }
+  .plain { list-style: none; padding: 0; margin: 0; font-size: 0.92rem; }
+  .plain li + li { margin-top: 3px; }
+  .sub { box-shadow: none; background: var(--surface-alt); }
+</style>

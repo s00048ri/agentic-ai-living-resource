@@ -1,0 +1,60 @@
+name: Build and deploy
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pages-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  ASTRO_TELEMETRY_DISABLED: '1'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - id: pages
+        uses: actions/configure-pages@v5
+        if: github.event_name != 'pull_request'
+      - name: Set base path
+        run: |
+          echo "BASE_PATH=${{ steps.pages.outputs.base_path || format('/{0}', github.event.repository.name) }}" >> "$GITHUB_ENV"
+          echo "SITE_URL=${{ steps.pages.outputs.origin }}" >> "$GITHUB_ENV"
+      - run: npm ci
+      - run: npm run check
+      - run: npm run build
+      - run: npm run check:links
+      - name: Check prohibited terms
+        run: npm run check:terms
+        env:
+          INTERNAL_TERMS: ${{ secrets.INTERNAL_TERMS }}
+      - uses: actions/upload-pages-artifact@v3
+        if: github.event_name != 'pull_request'
+        with:
+          path: dist
+
+  deploy:
+    if: github.event_name != 'pull_request'
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

@@ -1,0 +1,284 @@
+---
+import Base from '../layouts/Base.astro';
+import Badge from '../components/Badge.astro';
+import Tip from '../components/Tip.astro';
+import { COMMON_FIELDS, type CommonField } from '../lib/fields';
+import { getTaxonomy } from '../lib/taxonomy';
+
+const tax = await getTaxonomy();
+const field = (key: CommonField['key']) => {
+  const f = COMMON_FIELDS.find((x) => x.key === key);
+  if (!f) throw new Error(`Unknown field ${key}`);
+  return f;
+};
+const step1 = (['org_type', 'ecosystem_role', 'sector', 'region'] as const).map(field);
+const step2 = (['application_area', 'intended_users', 'client_orientation', 'deployment_stage', 'autonomy_level'] as const).map(field);
+
+// Existing values, used to prefill the form when updating a use case (?update=<id>).
+const prefill = Object.fromEntries(
+  tax.cases.map((c) => [
+    c.id,
+    {
+      title: c.data.title,
+      organisation: c.data.organisation,
+      values: Object.fromEntries(COMMON_FIELDS.map((f) => [f.key, c.data[f.key]])),
+      decisions_delegated: c.data.delegation?.decisions_delegated ?? '',
+      approvals_required: c.data.delegation?.approvals_required ?? '',
+      accountability_owner: c.data.delegation?.accountability_owner ?? '',
+      narrative: c.body?.trim() ?? '',
+      challenges: c.data.challenges.map((r) => r.id),
+      responses: c.data.responses.map((r) => r.id),
+      haip_linked: c.data.haip_linked,
+      in_oecd_ai_subset: c.data.in_oecd_ai_subset,
+    },
+  ]),
+);
+const prefillJson = JSON.stringify(prefill).replace(/</g, '\\u003c');
+
+const steps = [
+  'Organisation & context',
+  'The use case',
+  'In your own words',
+  'Challenges & governance responses',
+  'HAIP linkage',
+  'Disclosure & review',
+];
+---
+<Base title="Submit a use case" description="A non-functional mock-up of the submission and update form." section="submit">
+  <div class="section-head">
+    <h1 data-submit-title>Submit a use case</h1>
+    <Badge kind="mvp" />
+  </div>
+  <p class="lead">A mock-up of how organisations could submit a new use case or update an existing one.</p>
+  <p class="panel note" data-update-note hidden></p>
+
+  <ol class="stepper" aria-label="Form steps">
+    {steps.map((s, i) => (
+      <li><button type="button" data-goto={i} aria-current={i === 0 ? 'step' : undefined}><span class="num">{i + 1}</span> {s}</button></li>
+    ))}
+  </ol>
+
+  <form class="panel form" data-form novalidate>
+    <fieldset data-step="0">
+      <legend>1. Organisation &amp; context</legend>
+      <div class="fields">
+        {step1.map((f) => (
+          <div class="field">
+            <label for={`in-${f.key}`}>{f.label}</label>
+            <select id={`in-${f.key}`} name={f.key}>
+              <option value="">Select…</option>
+              {f.vocab.map((t) => <option value={t.id}>{t.label}</option>)}
+            </select>
+          </div>
+        ))}
+      </div>
+    </fieldset>
+
+    <fieldset data-step="1">
+      <legend>2. The use case</legend>
+      <div class="fields">
+        {step2.map((f) => (
+          <div class="field">
+            <label for={`in-${f.key}`}>
+              {f.label}
+              {f.key === 'autonomy_level' && (
+                <Tip label="About the autonomy levels" text={f.vocab.map((t) => `${t.label}: ${t.description ?? ''}`).join(' ')} />
+              )}
+            </label>
+            <select id={`in-${f.key}`} name={f.key}>
+              <option value="">Select…</option>
+              {f.vocab.map((t) => <option value={t.id}>{t.label}</option>)}
+            </select>
+          </div>
+        ))}
+      </div>
+      <h3>Delegation and accountability</h3>
+      <div class="field">
+        <label for="in-decisions">Which decisions are delegated to the agent?</label>
+        <textarea id="in-decisions" name="decisions_delegated"></textarea>
+      </div>
+      <div class="field">
+        <label for="in-approvals">Which actions require human approval?</label>
+        <textarea id="in-approvals" name="approvals_required"></textarea>
+      </div>
+      <div class="field">
+        <label for="in-accountability">Who remains accountable for the outcomes?</label>
+        <textarea id="in-accountability" name="accountability_owner"></textarea>
+      </div>
+    </fieldset>
+
+    <fieldset data-step="2">
+      <legend>3. In your own words</legend>
+      <div class="field">
+        <label for="in-narrative">Describe the use case</label>
+        <p class="hint" id="narrative-hint">What does the agent do? What changed for your teams? What did not work as expected?</p>
+        <textarea id="in-narrative" name="narrative" rows="10" aria-describedby="narrative-hint"></textarea>
+      </div>
+    </fieldset>
+
+    <fieldset data-step="3">
+      <legend>4. Challenges &amp; governance responses</legend>
+      <p class="hint">Challenges are a core part of this resource.</p>
+      <fieldset class="group">
+        <legend class="sub">Challenges encountered</legend>
+        <div class="checks">
+          {tax.challenges.map((c) => (
+            <label class="check"><input type="checkbox" name="challenges" value={c.id} /> {c.data.name}</label>
+          ))}
+        </div>
+        <div class="field">
+          <label for="in-other-challenge">Other challenges (optional)</label>
+          <input type="text" id="in-other-challenge" name="other_challenges" />
+        </div>
+      </fieldset>
+      <fieldset class="group">
+        <legend class="sub">Governance responses adopted</legend>
+        <div class="checks">
+          {tax.topResponses.map((r) => {
+            const children = tax.childrenOf(r.id);
+            return children.length === 0 ? (
+              <label class="check"><input type="checkbox" name="responses" value={r.id} /> {r.data.name}</label>
+            ) : (
+              <div class="nested">
+                <p class="nested-h">{r.data.name}</p>
+                {children.map((s) => (
+                  <label class="check"><input type="checkbox" name="responses" value={s.id} /> {s.data.name}</label>
+                ))}
+              </div>
+            );
+          })}
+        </div>
+        <div class="field">
+          <label for="in-other-response">Other governance responses (optional)</label>
+          <input type="text" id="in-other-response" name="other_responses" />
+        </div>
+      </fieldset>
+    </fieldset>
+
+    <fieldset data-step="4">
+      <legend>5. HAIP linkage <Badge kind="later" /></legend>
+      <p>
+        Already reporting under the Hiroshima AI Process Reporting Framework? Link the relevant answers (including those
+        on agentic AI) to avoid duplicate reporting.
+      </p>
+      <label class="check"><input type="checkbox" name="haip_linked" /> Our organisation reports under the HAIP Reporting Framework</label>
+      <div class="field">
+        <label for="in-haip">Relevant report and answers</label>
+        <input type="text" id="in-haip" name="haip_reference" />
+      </div>
+    </fieldset>
+
+    <fieldset data-step="5">
+      <legend>6. Disclosure &amp; review</legend>
+      <p>You do not need to name the model or product used. This resource focuses on use cases, challenges and governance responses.</p>
+      <label class="check"><input type="checkbox" name="in_oecd_ai_subset" /> This use case may be featured in the OECD.AI subset <Badge kind="later" /></label>
+      <p>Submissions are reviewed for completeness and consistency before publication; they are not assessed.</p>
+      <p class="prototype-note" role="note"><strong>This is a prototype — no data is submitted.</strong></p>
+    </fieldset>
+
+    <div class="nav">
+      <button type="button" class="btn btn-secondary" data-prev>Back</button>
+      <button type="button" class="btn" data-next>Next</button>
+      <button type="submit" class="btn" data-submit disabled>Submit</button>
+    </div>
+  </form>
+
+  <script type="application/json" id="prefill-data" set:html={prefillJson} />
+</Base>
+
+<script>
+  interface Prefill {
+    title: string;
+    organisation: string;
+    values: Record<string, string>;
+    decisions_delegated: string;
+    approvals_required: string;
+    accountability_owner: string;
+    narrative: string;
+    challenges: string[];
+    responses: string[];
+    haip_linked: boolean;
+    in_oecd_ai_subset: boolean;
+  }
+
+  const form = document.querySelector<HTMLFormElement>('[data-form]');
+  const stepsEls = [...document.querySelectorAll<HTMLFieldSetElement>('[data-step]')];
+  const gotos = [...document.querySelectorAll<HTMLButtonElement>('[data-goto]')];
+  const prev = document.querySelector<HTMLButtonElement>('[data-prev]');
+  const next = document.querySelector<HTMLButtonElement>('[data-next]');
+  const submit = document.querySelector<HTMLButtonElement>('[data-submit]');
+  let current = 0;
+
+  function show(i: number, focus = true) {
+    current = Math.max(0, Math.min(stepsEls.length - 1, i));
+    stepsEls.forEach((el, j) => (el.hidden = j !== current));
+    gotos.forEach((b, j) => {
+      if (j === current) b.setAttribute('aria-current', 'step');
+      else b.removeAttribute('aria-current');
+    });
+    if (prev) prev.hidden = current === 0;
+    if (next) next.hidden = current === stepsEls.length - 1;
+    if (submit) submit.hidden = current !== stepsEls.length - 1;
+    if (focus) stepsEls[current]?.querySelector('legend')?.setAttribute('tabindex', '-1');
+    if (focus) stepsEls[current]?.querySelector<HTMLElement>('legend')?.focus();
+  }
+
+  gotos.forEach((b, j) => b.addEventListener('click', () => show(j)));
+  prev?.addEventListener('click', () => show(current - 1));
+  next?.addEventListener('click', () => show(current + 1));
+  form?.addEventListener('submit', (e) => e.preventDefault());
+  show(0, false);
+
+  // Update mode: prefill from an existing use case.
+  const id = new URLSearchParams(location.search).get('update');
+  const raw = document.getElementById('prefill-data')?.textContent ?? '{}';
+  const data = (JSON.parse(raw) as Record<string, Prefill>)[id ?? ''];
+  if (form && data) {
+    const title = document.querySelector('[data-submit-title]');
+    if (title) title.textContent = 'Update a use case';
+    document.title = document.title.replace('Submit a use case', 'Update a use case');
+    const note = document.querySelector<HTMLElement>('[data-update-note]');
+    if (note) {
+      note.textContent = `Updating: “${data.title}” (${data.organisation}, fictional example). Existing values are filled in.`;
+      note.hidden = false;
+    }
+    const setValue = (name: string, value: string) => {
+      const el = form.elements.namedItem(name);
+      if (el instanceof HTMLSelectElement || el instanceof HTMLTextAreaElement || el instanceof HTMLInputElement) el.value = value;
+    };
+    for (const [k, v] of Object.entries(data.values)) setValue(k, v);
+    setValue('decisions_delegated', data.decisions_delegated);
+    setValue('approvals_required', data.approvals_required);
+    setValue('accountability_owner', data.accountability_owner);
+    setValue('narrative', data.narrative);
+    form.querySelectorAll<HTMLInputElement>('input[name="challenges"]').forEach((c) => (c.checked = data.challenges.includes(c.value)));
+    form.querySelectorAll<HTMLInputElement>('input[name="responses"]').forEach((c) => (c.checked = data.responses.includes(c.value)));
+    const haip = form.elements.namedItem('haip_linked');
+    if (haip instanceof HTMLInputElement) haip.checked = data.haip_linked;
+    const subset = form.elements.namedItem('in_oecd_ai_subset');
+    if (subset instanceof HTMLInputElement) subset.checked = data.in_oecd_ai_subset;
+  }
+</script>
+
+<style>
+  .stepper { list-style: none; padding: 0; margin: 16px 0; display: flex; flex-wrap: wrap; gap: 8px; }
+  .stepper button { font: inherit; font-size: 0.88rem; cursor: pointer; background: var(--surface); color: var(--text); border: 1px solid var(--border); border-radius: 999px; padding: 4px 12px 4px 4px; }
+  .stepper .num { display: inline-block; width: 1.6em; height: 1.6em; line-height: 1.6em; text-align: center; border-radius: 50%; background: var(--surface-alt); font-weight: 700; margin-right: 4px; }
+  .stepper button[aria-current='step'] { border-color: var(--accent); font-weight: 600; }
+  .stepper button[aria-current='step'] .num { background: var(--navy); color: #fff; }
+  .fields { display: grid; gap: 14px; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); }
+  .field { display: flex; flex-direction: column; gap: 4px; margin-bottom: 14px; }
+  .hint { color: var(--muted); font-size: 0.9rem; margin: 0 0 4px; }
+  .group { margin: 12px 0 18px; }
+  .sub { font-size: 1rem; }
+  .checks { display: grid; gap: 6px 16px; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); margin-bottom: 10px; }
+  .check { font-weight: 400; display: flex; gap: 8px; align-items: flex-start; }
+  .check input { margin-top: 0.3em; }
+  .nested { grid-column: 1 / -1; display: grid; gap: 6px 16px; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); padding: 8px 12px; border-left: 3px solid var(--border); }
+  .nested-h { grid-column: 1 / -1; margin: 0; font-weight: 600; }
+  .nav { display: flex; gap: 12px; justify-content: flex-end; border-top: 1px solid var(--border); padding-top: 14px; margin-top: 8px; }
+  .prototype-note { background: var(--banner-bg); color: var(--banner-text); padding: 8px 12px; border-radius: 6px; }
+  .note { margin: 12px 0; }
+  legend:focus { outline: none; }
+  @media (prefers-color-scheme: dark) { .stepper button[aria-current='step'] .num { background: var(--accent); color: #11141f; } }
+</style>

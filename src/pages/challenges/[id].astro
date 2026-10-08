@@ -1,0 +1,94 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import Badge from '../../components/Badge.astro';
+import CaseCard from '../../components/CaseCard.astro';
+import TmLabel from '../../components/TmLabel.astro';
+import { LINKS } from '../../config';
+import { url } from '../../lib/url';
+import { getTaxonomy, type Challenge } from '../../lib/taxonomy';
+
+export async function getStaticPaths() {
+  const { challenges } = await getTaxonomy();
+  return challenges.map((entry) => ({ params: { id: entry.id }, props: { entry } }));
+}
+
+interface Props {
+  entry: Challenge;
+}
+const { entry } = Astro.props;
+const d = entry.data;
+const tax = await getTaxonomy();
+const cases = tax.casesForChallenge(entry.id);
+const related = tax.responsesForChallenge(entry.id);
+const research = (await getCollection('references')).filter((r) => r.data.type === 'academic');
+---
+<Base title={d.name} description={d.summary} section="challenges">
+  <p class="crumbs"><a href={url('/challenges/')}>Challenges</a> <Badge kind="mvp" /></p>
+  <h1>{d.name}</h1>
+  <p class="lead">{d.summary}</p>
+  <p class="meta">Source: <a href={LINKS.phase2Paper}>OECD (2026), OECD Artificial Intelligence Papers, No. 65</a>, {d.source_ref}</p>
+
+  <section aria-labelledby="cases-h">
+    <h2 id="cases-h">Use cases reporting this challenge</h2>
+    {cases.length > 0 ? (
+      <div class="grid">{cases.map((c) => <CaseCard entry={c} />)}</div>
+    ) : (
+      <p>No use cases recorded yet.</p>
+    )}
+  </section>
+
+  <section aria-labelledby="responses-h">
+    <h2 id="responses-h">Related governance responses</h2>
+    {related.length > 0 ? (
+      <ul class="related">
+        {related.map(({ response, basis }) => {
+          const parent = response.data.parent ? tax.response(response.data.parent.id) : undefined;
+          return (
+            <li>
+              <a href={url(`/responses/#${response.id}`)}>{response.data.name}</a>
+              {parent && <span class="meta"> — part of {parent.data.name}</span>}
+              {basis === 'editorial' && <span class="editorial-note"> — Mapping proposed for this prototype</span>}
+              <br />
+              <TmLabel tm={response.data.tm} />
+            </li>
+          );
+        })}
+      </ul>
+    ) : (
+      <p>No governance responses are mapped to this challenge yet.</p>
+    )}
+  </section>
+
+  <section aria-labelledby="research-h">
+    <div class="section-head">
+      <h2 id="research-h">Related research</h2>
+      <Badge kind="later" />
+    </div>
+    <p class="meta">Pointing to research, not assessing it.</p>
+    <ul>
+      {research.map((r) => (
+        <li>{r.data.status === 'to-be-curated' ? <span>[To be curated]</span> : r.data.url ? <a href={r.data.url}>{r.data.title}</a> : r.data.title}</li>
+      ))}
+    </ul>
+  </section>
+
+  {d.incident_feed_planned && (
+    <section class="panel incident" aria-labelledby="incidents-h">
+      <div class="section-head">
+        <h2 id="incidents-h">Incident signals</h2>
+        <Badge kind="later" />
+      </div>
+      <p>A future feed from the <a href={LINKS.incidentsMonitor}>AI Incidents Monitor</a> could surface related incidents here.</p>
+    </section>
+  )}
+</Base>
+
+<style>
+  .crumbs { margin: 0; font-size: 0.9rem; }
+  .meta { font-size: 0.85rem; color: var(--muted); }
+  .related { padding-left: 1.2em; }
+  .related li { margin-bottom: 10px; }
+  .incident { margin-top: 24px; border-style: dashed; }
+  .incident h2 { margin-top: 0; }
+</style>

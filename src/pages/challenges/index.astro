@@ -1,0 +1,32 @@
+---
+import Base from '../../layouts/Base.astro';
+import Badge from '../../components/Badge.astro';
+import ChallengeCount from '../../components/ChallengeCount.astro';
+import { url } from '../../lib/url';
+import { getTaxonomy } from '../../lib/taxonomy';
+
+const tax = await getTaxonomy();
+---
+<Base title="Challenges" description="Challenges organisations report when deploying agentic AI." section="challenges">
+  <div class="section-head">
+    <h1>Challenges</h1>
+    <Badge kind="mvp" />
+  </div>
+  <p class="lead">
+    The challenges organisations report when developing and deploying agentic AI, in eleven categories. Each category
+    links to the use cases that report it and to the governance responses that address it.
+  </p>
+  <div class="grid">
+    {tax.challenges.map((c) => (
+      <article class="card">
+        <h2 class="card-title"><a href={url(`/challenges/${c.id}/`)}>{c.data.name}</a></h2>
+        <p>{c.data.summary}</p>
+        <p class="meta more"><ChallengeCount cases={tax.casesForChallenge(c.id)} /></p>
+      </article>
+    ))}
+  </div>
+</Base>
+
+<style>
+  .card-title { margin: 0; font-size: 1.05rem; }
+</style>

@@ -1,0 +1,53 @@
+Anthropic
+Deutsche Telekom
+Fresh Consulting
+Fujitsu
+Google
+Infosys
+KDDI
+Microsoft
+Nama.ai
+NEC
+NTT
+OIST
+Okinawa Institute of Science and Technology
+Preferred Networks
+PFN
+Prisme.ai
+Qhala
+Rakuten
+RELX
+Sakana
+Salesforce
+TELUS
+GSMA
+BMDS
+IMDA
+Infocomm Media Development Authority
+Ministry of Internal Affairs and Communications
+MIC
+National Research Council of Canada
+NRC
+Claude
+Gemini
+Copilot
+Agentforce
+Kozuchi
+Topaz
+cotomi
+tsuzumi
+PLaMo
+AlphaEvolve
+CodeMender
+Model Armor
+Fuel iX
+RAN Guardian
+MINDR
+A-BOSS
+AI Constellation
+Atunzi
+LexisNexis
+Elsevier
+Scopus
+LeapSpace
+MANTA
