@@ -3,7 +3,6 @@ import { getCollection } from 'astro:content';
 import Base from '../../layouts/Base.astro';
 import Badge from '../../components/Badge.astro';
 import CaseCard from '../../components/CaseCard.astro';
-import TmLabel from '../../components/TmLabel.astro';
 import { LINKS } from '../../config';
 import { url } from '../../lib/url';
 import { getTaxonomy, type Challenge } from '../../lib/taxonomy';
@@ -20,7 +19,6 @@ const { entry } = Astro.props;
 const d = entry.data;
 const tax = await getTaxonomy();
 const cases = tax.casesForChallenge(entry.id);
-const related = tax.responsesForChallenge(entry.id);
 const research = (await getCollection('references')).filter((r) => r.data.type === 'academic');
 ---
 <Base title={d.name} description={d.summary} section="challenges">
@@ -39,27 +37,6 @@ const research = (await getCollection('references')).filter((r) => r.data.type =
     )}
   </section>
 
-  <section aria-labelledby="responses-h">
-    <h2 id="responses-h">Related governance responses</h2>
-    {related.length > 0 ? (
-      <ul class="related">
-        {related.map(({ response, basis }) => {
-          const parent = response.data.parent ? tax.response(response.data.parent.id) : undefined;
-          return (
-            <li>
-              <a href={url(`/responses/#${response.id}`)}>{response.data.name}</a>
-              {parent && <span class="meta"> — part of {parent.data.name}</span>}
-              {basis === 'editorial' && <span class="editorial-note"> — Mapping proposed for this prototype</span>}
-              <br />
-              <TmLabel tm={response.data.tm} />
-            </li>
-          );
-        })}
-      </ul>
-    ) : (
-      <p>No governance responses are mapped to this challenge yet.</p>
-    )}
-  </section>
 
   <section aria-labelledby="research-h">
     <div class="section-head">
@@ -88,8 +65,6 @@ const research = (await getCollection('references')).filter((r) => r.data.type =
 <style>
   .crumbs { margin: 0; font-size: 0.9rem; }
   .meta { font-size: 0.85rem; color: var(--muted); }
-  .related { padding-left: 1.2em; }
-  .related li { margin-bottom: 10px; }
   .incident { margin-top: 24px; border-style: dashed; }
   .incident h2 { margin-top: 0; }
 </style>

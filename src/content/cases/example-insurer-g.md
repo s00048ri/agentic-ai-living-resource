@@ -20,7 +20,7 @@ benefits:
   - value-creation
 challenges:
   - linguistic-contextual-accuracy
-  - traceability-explainability
+  - traceability
 responses:
   - grounding-trusted-data
   - calibrated-human-oversight

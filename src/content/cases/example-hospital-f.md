@@ -7,7 +7,7 @@ summary: A hospital is testing an agent that drafts discharge summaries from cli
 org_type: public-sector
 ecosystem_role: deployer
 sector: healthcare
-application_area: knowledge-management
+application_area: internal-workflow-optimisation
 intended_users: internal
 client_orientation: internal-only
 region: europe
@@ -19,7 +19,7 @@ benefits:
   - workforce-augmentation
 challenges:
   - unintended-actions
-  - data-governance-privacy-attribution
+  - privacy
   - human-oversight-over-reliance
 responses:
   - access-permission-management

@@ -1,6 +1,7 @@
 # Governance responses taxonomy — Phase 2 paper, Section 4.2
-# 17 responses (names verbatim). The 10 items the paper lists under "Layered technical safeguards"
-# are top-level responses in this prototype.
+# 16 responses. The 10 measures the paper lists under "Layered technical safeguards" are top-level
+# responses in this prototype; the group heading itself is not used. Names are verbatim except
+# "System-level thinking with subject-matter experts".
 # Source / licence / adaptation notice: see challenges.yaml header.
 #
 # addresses[].basis:
@@ -37,7 +38,7 @@
   addresses:
     - { challenge: unintended-actions, basis: explicit }
     - { challenge: human-oversight-over-reliance, basis: explicit }
-    - { challenge: unpredictable-behaviour, basis: explicit }
+    - { challenge: unpredictability, basis: explicit }
   tm: { tool_type: procedural }
 
 - id: agent-specific-evaluation
@@ -51,13 +52,13 @@
     model accuracy.
   cross_cutting: false
   addresses:
-    - { challenge: unpredictable-behaviour, basis: explicit }
-    - { challenge: task-adherence-policy-compliance, basis: explicit }
+    - { challenge: unpredictability, basis: explicit }
+    - { challenge: task-adherence, basis: explicit }
     - { challenge: evaluation-assurance, basis: explicit }
   tm: { tool_type: technical }
 
 - id: subject-matter-expertise
-  name: Embedding subject-matter expertise in design and deployment
+  name: System-level thinking with subject-matter experts
   parent: null
   source_ref: "Section 4.2"
   summary: >-
@@ -66,7 +67,8 @@
     knowledge may become a bottleneck.
   cross_cutting: false
   addresses:
-    - { challenge: task-adherence-policy-compliance, basis: editorial }
+    - { challenge: task-adherence, basis: editorial }
+    - { challenge: policy-compliance, basis: editorial }
     - { challenge: evaluation-assurance, basis: editorial }
   tm: null
 
@@ -93,27 +95,13 @@
     and resource consumption, with review and approval before deployment.
   cross_cutting: false
   addresses:
-    - { challenge: multi-agent-systemic-risks, basis: editorial }
-    - { challenge: data-governance-privacy-attribution, basis: editorial }
-    - { challenge: compute-costs, basis: editorial }
+    - { challenge: multi-agent-interaction, basis: editorial }
+    - { challenge: data-governance, basis: editorial }
+    - { challenge: compute-consumption, basis: editorial }
   tm: { tool_type: procedural }
 
-- id: layered-technical-safeguards
-  name: Layered technical safeguards
-  parent: null
-  source_ref: "Section 4.2"
-  summary: >-
-    Multiple overlapping safeguards operating at different stages of design, development
-    and deployment, on the view that no single control is sufficient.
-  cross_cutting: false
-  addresses:
-    - { challenge: cybersecurity, basis: explicit }
-    - { challenge: unintended-actions, basis: explicit }
-    - { challenge: multi-agent-systemic-risks, basis: explicit }
-    - { challenge: data-governance-privacy-attribution, basis: explicit }
-  tm: null   # former group heading; T&M links sit on the individual safeguards
 
-# ---- Formerly listed under "Layered technical safeguards" ----
+# ---- Listed in the paper under "Layered technical safeguards" ----
 
 - id: sandboxing
   name: Sandboxing and environment isolation
@@ -124,7 +112,7 @@
     deployment, to limit the impact of unexpected behaviour before granting broader access.
   cross_cutting: false
   addresses:
-    - { challenge: unpredictable-behaviour, basis: explicit }
+    - { challenge: unpredictability, basis: explicit }
   tm: { tool_type: technical }
 
 - id: access-permission-management
@@ -136,7 +124,7 @@
     high-impact actions, and restrictions such as prohibiting bulk approvals.
   cross_cutting: false
   addresses:
-    - { challenge: data-governance-privacy-attribution, basis: editorial }
+    - { challenge: identity-attribution, basis: editorial }
     - { challenge: cybersecurity, basis: editorial }
   tm: { tool_type: technical }
 
@@ -150,7 +138,7 @@
   cross_cutting: false
   addresses:
     - { challenge: cybersecurity, basis: explicit }
-    - { challenge: multi-agent-systemic-risks, basis: editorial }
+    - { challenge: multi-agent-interaction, basis: editorial }
   tm: { tool_type: technical }
 
 - id: rule-based-safety-layers
@@ -162,8 +150,9 @@
     ("AI inside, rules around it"), providing auditable and predictable constraints.
   cross_cutting: false
   addresses:
-    - { challenge: unpredictable-behaviour, basis: editorial }
-    - { challenge: task-adherence-policy-compliance, basis: editorial }
+    - { challenge: unpredictability, basis: editorial }
+    - { challenge: task-adherence, basis: editorial }
+    - { challenge: policy-compliance, basis: editorial }
   tm: { tool_type: technical }
 
 - id: hard-coded-boundaries
@@ -175,7 +164,7 @@
     prevent runaway resource consumption, cost overruns or unintended behaviour.
   cross_cutting: false
   addresses:
-    - { challenge: compute-costs, basis: explicit }
+    - { challenge: compute-consumption, basis: explicit }
     - { challenge: unintended-actions, basis: explicit }
   tm: { tool_type: technical }
 
@@ -189,7 +178,7 @@
     and up to date.
   cross_cutting: false
   addresses:
-    - { challenge: task-adherence-policy-compliance, basis: explicit }
+    - { challenge: policy-compliance, basis: explicit }
     - { challenge: unintended-actions, basis: editorial }
   tm: { tool_type: technical }
 
@@ -203,7 +192,7 @@
     complex workflows.
   cross_cutting: false
   addresses:
-    - { challenge: unpredictable-behaviour, basis: explicit }
+    - { challenge: unpredictability, basis: explicit }
     - { challenge: unintended-actions, basis: editorial }
   tm: { tool_type: technical }
 
@@ -217,7 +206,7 @@
     policies and controls.
   cross_cutting: false
   addresses:
-    - { challenge: data-governance-privacy-attribution, basis: explicit }
+    - { challenge: data-governance, basis: explicit }
   tm: { tool_type: procedural }
 
 - id: observability-mechanisms
@@ -229,8 +218,8 @@
     that evaluate other agents' behaviour and alert human reviewers to anomalies.
   cross_cutting: false
   addresses:
-    - { challenge: unpredictable-behaviour, basis: explicit }
-    - { challenge: traceability-explainability, basis: editorial }
+    - { challenge: unpredictability, basis: explicit }
+    - { challenge: traceability, basis: editorial }
     - { challenge: human-oversight-over-reliance, basis: editorial }
   tm: { tool_type: technical }
 

@@ -26,8 +26,9 @@ benefits:
   - value-creation
 challenges:
   - linguistic-contextual-accuracy
-  - traceability-explainability
-  - task-adherence-policy-compliance
+  - traceability
+  - explainability
+  - policy-compliance
 responses:
   - grounding-trusted-data
   - calibrated-human-oversight

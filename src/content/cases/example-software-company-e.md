@@ -18,8 +18,8 @@ human_oversight:
 benefits:
   - operational-efficiency
 challenges:
-  - task-adherence-policy-compliance
-  - compute-costs
+  - task-adherence
+  - compute-consumption
   - cybersecurity
 responses:
   - sandboxing

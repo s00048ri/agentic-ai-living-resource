@@ -20,8 +20,8 @@ benefits:
   - workforce-augmentation
 challenges:
   - linguistic-contextual-accuracy
-  - compute-costs
-  - data-governance-privacy-attribution
+  - compute-consumption
+  - privacy
 responses:
   - local-language-capabilities
   - agentic-ready-procurement

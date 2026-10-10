@@ -26,23 +26,28 @@ export const ECOSYSTEM_ROLES = [
 
 export const SECTORS = [
   { id: 'telecommunications', label: 'Telecommunications' },
-  { id: 'e-commerce', label: 'E-commerce' },
+  { id: 'commerce-retail', label: 'E-commerce, retail & consumer goods' },
   { id: 'manufacturing', label: 'Manufacturing' },
   { id: 'energy-utilities', label: 'Energy & utilities' },
-  { id: 'financial-services', label: 'Financial services' },
+  { id: 'financial-services', label: 'Financial services & insurance' },
   { id: 'legal', label: 'Legal' },
   { id: 'healthcare', label: 'Healthcare' },
   { id: 'public-administration', label: 'Public administration' },
   { id: 'scientific-research', label: 'Scientific research' },
   { id: 'technology', label: 'Technology' },
+  { id: 'transportation', label: 'Transportation' },
+  { id: 'professional-business-services', label: 'Professional & business services' },
+  { id: 'media', label: 'Media' },
   { id: 'other', label: 'Other' },
 ] as const satisfies readonly Term[];
 
 export const APPLICATION_AREAS = [
-  { id: 'knowledge-management', label: 'Knowledge management & internal workflows' },
+  { id: 'knowledge-management', label: 'Knowledge management' },
+  { id: 'internal-workflow-optimisation', label: 'Internal workflow optimisation' },
   { id: 'customer-support', label: 'Customer support' },
   { id: 'analytical-support', label: 'Analytical support & decision assistance' },
-  { id: 'compliance', label: 'Compliance & system intervention' },
+  { id: 'compliance', label: 'Compliance' },
+  { id: 'system-database-modifications', label: 'System and database modifications' },
   { id: 'legal-research', label: 'Legal research & drafting' },
   { id: 'supply-chain-industrial', label: 'Supply chain & industrial optimisation' },
   { id: 'customer-facing-transactional', label: 'Customer-facing transactional assistants' },
@@ -52,6 +57,7 @@ export const APPLICATION_AREAS = [
   { id: 'network-infrastructure', label: 'Network capacity & infrastructure planning' },
   { id: 'research-discovery', label: 'Research & scientific discovery' },
   { id: 'public-services', label: 'Public sector & government services' },
+  { id: 'other', label: 'Other' },
 ] as const satisfies readonly Term[];
 
 export const INTENDED_USERS = [
@@ -63,6 +69,7 @@ export const INTENDED_USERS = [
 export const CLIENT_ORIENTATION = [
   { id: 'b2c', label: 'B2C' },
   { id: 'b2b', label: 'B2B' },
+  { id: 'b2g', label: 'B2G' },
   { id: 'g2c', label: 'Government-to-citizen' },
   { id: 'internal-only', label: 'Internal only' },
 ] as const satisfies readonly Term[];

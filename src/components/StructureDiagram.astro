@@ -7,7 +7,7 @@ const V = { w: 280, h: 46, gap: 26 };
 <figure class="diagram">
   <svg class="diagram-h" viewBox={`0 0 ${steps.length * H.w + (steps.length - 1) * H.gap + 4} ${H.h + 44}`} role="img" aria-labelledby="dg-title dg-desc">
     <title id="dg-title">How use cases relate to the Catalogue of Tools &amp; Metrics</title>
-    <desc id="dg-desc">A use case lists challenges; challenges are addressed by governance responses; responses that are technical or procedural tools could link to the OECD Catalogue of Tools &amp; Metrics. The first three are recorded in this resource.</desc>
+    <desc id="dg-desc">A use case lists challenges; challenges are addressed by governance responses; responses that are technical or procedural tools could link to the OECD Catalogue of Tools &amp; Metrics, and catalogue entries could be suggested back to organisations. The first three are recorded in this resource.</desc>
     <defs>
       <marker id="arrow-h" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
         <path d="M0 0L10 5L0 10z" class="dg-arrowhead" />
@@ -27,7 +27,7 @@ const V = { w: 280, h: 46, gap: 26 };
             <text x={x + (H.w - 16) / 2} y={8 + H.h / 2 + (j - (lines.length - 1) / 2) * 18 + 5} text-anchor="middle" class="dg-text">{line}</text>
           ))}
           {i < steps.length - 1 && (
-            <line x1={x + H.w - 14} y1={8 + H.h / 2} x2={x + H.w + H.gap - 4} y2={8 + H.h / 2} class="dg-line" marker-end="url(#arrow-h)" />
+            <line x1={x + H.w - 14} y1={8 + H.h / 2} x2={x + H.w + H.gap - 4} y2={8 + H.h / 2} class="dg-line" marker-end="url(#arrow-h)" marker-start={i === steps.length - 2 ? 'url(#arrow-h)' : undefined} />
           )}
         </g>
       );
@@ -49,7 +49,7 @@ const V = { w: 280, h: 46, gap: 26 };
           <rect x="22" y={y} width={V.w - 40} height={V.h} rx="8" class={i === steps.length - 1 ? 'dg-box dg-ext' : 'dg-box'} />
           <text x={V.w / 2 + 2} y={y + V.h / 2 + 5} text-anchor="middle" class="dg-text">{s}</text>
           {i < steps.length - 1 && (
-            <line x1={V.w / 2 + 2} y1={y + V.h + 2} x2={V.w / 2 + 2} y2={y + V.h + V.gap - 4 + (i === 2 ? 10 : 0)} class="dg-line" marker-end="url(#arrow-v)" />
+            <line x1={V.w / 2 + 2} y1={y + V.h + 2} x2={V.w / 2 + 2} y2={y + V.h + V.gap - 4 + (i === 2 ? 10 : 0)} class="dg-line" marker-end="url(#arrow-v)" marker-start={i === steps.length - 2 ? 'url(#arrow-v)' : undefined} />
           )}
         </g>
       );
@@ -58,6 +58,7 @@ const V = { w: 280, h: 46, gap: 26 };
   <figcaption>
     Governance responses that take the form of technical or procedural tools could link to the OECD Catalogue of Tools
     &amp; Metrics; the use cases themselves, and responses that are not tools, are recorded in this resource.
+    Tools already in the Catalogue could, in turn, be suggested to organisations when they describe their responses.
   </figcaption>
 </figure>
 

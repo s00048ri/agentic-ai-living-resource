@@ -26,8 +26,8 @@ benefits:
   - workforce-augmentation
 challenges:
   - human-oversight-over-reliance
-  - traceability-explainability
-  - data-governance-privacy-attribution
+  - traceability
+  - identity-attribution
   - evaluation-assurance
 responses:
   - calibrated-human-oversight

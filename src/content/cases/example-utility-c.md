@@ -18,8 +18,8 @@ human_oversight:
 benefits:
   - operational-efficiency
 challenges:
-  - unpredictable-behaviour
-  - multi-agent-systemic-risks
+  - unpredictability
+  - compounding-errors
 responses:
   - observability-mechanisms
   - rule-based-safety-layers

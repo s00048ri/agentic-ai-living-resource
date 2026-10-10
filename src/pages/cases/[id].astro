@@ -31,7 +31,7 @@ const isFull = d.detail_level === 'full';
   <p class="lead">{d.summary}</p>
   <p class="legend">
     <span class="badge badge-common">Common field</span> structured information used to compare use cases ·
-    <span class="badge badge-narrative">Free narrative</span> written by the organisation
+    <span class="badge badge-narrative">Free narrative</span> the use case described by its source
   </p>
 
   <div class="detail">
@@ -112,11 +112,19 @@ const isFull = d.detail_level === 'full';
     <div class="col-main">
       <section class="narrative" aria-labelledby="own-words">
         <div class="section-head">
-          <h2 id="own-words">In their own words</h2>
+          <h2 id="own-words">Use case details</h2>
           <span class="badge badge-narrative">Free narrative</span>
         </div>
-        <p class="illustrative">In a live service, this section would be written by the organisation. This text is illustrative.</p>
+        <p class="illustrative">This text is illustrative. In a live service, it would describe the use case as provided by its source.</p>
         <div class="prose"><Content /></div>
+      </section>
+
+      <section class="common-block" aria-labelledby="benefits-h">
+        <div class="section-head">
+          <h2 id="benefits-h">Benefits</h2>
+          <span class="badge badge-common">Common field</span>
+        </div>
+        <ul class="tags">{d.benefits.map((b) => <li class="tag">{label(BENEFITS, b)}</li>)}</ul>
       </section>
 
       <section class="common-block" aria-labelledby="challenges-h">
@@ -140,12 +148,10 @@ const isFull = d.detail_level === 'full';
         <ul class="plain">
           {d.responses.map((ref) => {
             const r = tax.response(ref.id);
-            const parent = r.data.parent ? tax.response(r.data.parent.id) : undefined;
             return (
               <li>
                 <a href={url(`/responses/#${r.id}`)}>{r.data.name}</a>
                 <TmLabel tm={r.data.tm} compact />
-                {parent && <span class="meta"> — part of {parent.data.name}</span>}
               </li>
             );
           })}
@@ -156,14 +162,6 @@ const isFull = d.detail_level === 'full';
           </span>
           Could link to the OECD Catalogue of Tools &amp; Metrics.
         </p>
-      </section>
-
-      <section class="common-block" aria-labelledby="benefits-h">
-        <div class="section-head">
-          <h2 id="benefits-h">Benefits</h2>
-          <span class="badge badge-common">Common field</span>
-        </div>
-        <ul class="tags">{d.benefits.map((b) => <li class="tag">{label(BENEFITS, b)}</li>)}</ul>
       </section>
 
       {d.lessons && (
@@ -178,9 +176,14 @@ const isFull = d.detail_level === 'full';
 
       <section class="common-block" aria-labelledby="oversight-h">
         <div class="section-head">
-          <h2 id="oversight-h">{isFull ? 'Delegation & accountability' : 'Human oversight'}</h2>
+          <h2 id="oversight-h">{isFull ? 'Delegation & accountability' : 'Human oversight arrangements'}</h2>
           <span class="badge badge-common">Common field</span>
         </div>
+        <p class="meta">
+          {isFull
+            ? 'Which decisions the agent may take on its own, which need human approval, and who remains accountable.'
+            : 'How people supervise or approve the agent’s actions in this use case.'}
+        </p>
         {d.delegation && (
           <dl class="delegation">
             <dt>Decisions delegated to the agent</dt>
@@ -189,7 +192,7 @@ const isFull = d.detail_level === 'full';
             <dd>{d.delegation.approvals_required}</dd>
             <dt>Accountability</dt>
             <dd>{d.delegation.accountability_owner}</dd>
-            <dt>Human oversight</dt>
+            <dt>Human oversight arrangements</dt>
             <dd><ul>{d.human_oversight.map((o) => <li>{o}</li>)}</ul></dd>
           </dl>
         )}

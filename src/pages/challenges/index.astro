@@ -13,8 +13,8 @@ const tax = await getTaxonomy();
     <Badge kind="mvp" />
   </div>
   <p class="lead">
-    The challenges organisations report when developing and deploying agentic AI, in eleven categories. Each category
-    links to the use cases that report it and to the governance responses that address it.
+    The challenges organisations report when developing and deploying agentic AI, in {tax.challenges.length} categories. Each category
+    links to the use cases that report it.
   </p>
   <div class="grid">
     {tax.challenges.map((c) => (
